@@ -1,631 +1,1260 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Playing Leaderboard</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --panel: rgba(17, 24, 39, 0.8);
-      --panel-2: rgba(30, 41, 59, 0.75);
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --line: rgba(148, 163, 184, 0.18);
-      --gold: #fbbf24;
-      --silver: #cbd5e1;
-      --bronze: #d97706;
-      --accent: #22c55e;
-      --danger: #ef4444;
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-      --radius-xl: 24px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
+<!DOCTYPE html> <!-- بيحدد إن المستند HTML5 -->
+
+<html lang="en"> <!-- بداية صفحة HTML وتحديد اللغة الإنجليزية -->
+<head> <!-- معلومات الصفحة اللي مش بتظهر مباشرة جوه المحتوى -->
+  <meta charset="UTF-8" /> <!-- بيدعم الأحرف المختلفة زي العربي والإنجليزي -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- بيخلي الصفحة Responsive على الموبايل -->
+  <title>Playing Leaderboard</title> <!-- عنوان الصفحة اللي بيظهر في التاب -->
+
+  <style> /* بداية CSS الخاص بتنسيق الصفحة */
+
+    :root { /* تعريف متغيرات CSS عشان نستخدمها في كل الصفحة بسهولة */
+      --bg: #0b1020; /* لون خلفية أساسي */
+      --panel: rgba(17, 24, 39, 0.8); /* لون البوكسات الأساسية بشفافية */
+      --panel-2: rgba(30, 41, 59, 0.75); /* لون ثانوي للبوكسات */
+      --panel-3: rgba(15, 23, 42, 0.88); /* لون ثالث مستخدم في المودال */
+      --text: #e5e7eb; /* لون النص الأساسي */
+      --muted: #94a3b8; /* لون النص الثانوي/الهادئ */
+      --line: rgba(148, 163, 184, 0.18); /* لون الحدود */
+      --gold: #fbbf24; /* لون ذهبي */
+      --silver: #cbd5e1; /* لون فضي */
+      --bronze: #d97706; /* لون برونزي */
+      --accent: #22c55e; /* لون أخضر للإشارات الإيجابية */
+      --danger: #ef4444; /* لون أحمر للإشارات السلبية */
+      --info: #38bdf8; /* لون أزرق معلوماتي */
+      --violet: #8b5cf6; /* لون بنفسجي */
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35); /* ظل جاهز للعناصر */
+      --radius-xl: 24px; /* نصف قطر كبير للحواف */
+      --radius-lg: 18px; /* نصف قطر متوسط كبير */
+      --radius-md: 14px; /* نصف قطر متوسط */
     }
 
-    * {
-      box-sizing: border-box;
+    * { /* بيطبق على كل العناصر */
+      box-sizing: border-box; /* بيخلي الـ width والـ height يشملوا padding و border */
     }
 
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    body { /* تنسيق جسم الصفحة */
+      margin: 0; /* إزالة الهوامش الافتراضية */
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; /* نوع الخط */
       background:
-        radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 24%),
-        radial-gradient(circle at top right, rgba(251, 191, 36, 0.10), transparent 20%),
-        linear-gradient(180deg, #0b1020 0%, #111827 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 32px 16px;
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 24%), /* تأثير دائري أخضر أعلى اليسار */
+        radial-gradient(circle at top right, rgba(251, 191, 36, 0.10), transparent 20%), /* تأثير دائري ذهبي أعلى اليمين */
+        linear-gradient(180deg, #0b1020 0%, #111827 100%); /* خلفية متدرجة داكنة */
+      color: var(--text); /* لون النص الافتراضي */
+      min-height: 100vh; /* أقل ارتفاع = طول الشاشة بالكامل */
+      padding: 32px 16px; /* مسافة داخلية حول الصفحة */
     }
 
-    .container {
-      width: min(1180px, 100%);
-      margin: 0 auto;
-      display: grid;
-      gap: 22px;
+    .container { /* الحاوية الرئيسية */
+      width: min(1240px, 100%); /* أقصى عرض 1240px أو 100% حسب المتاح */
+      margin: 0 auto; /* توسيط العنصر */
+      display: grid; /* استخدام Grid layout */
+      gap: 22px; /* مسافة بين العناصر */
     }
 
     .hero,
-    .card {
-      background: var(--panel);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
+    .card { /* تنسيق مشترك بين الـ hero والبطاقات */
+      background: var(--panel); /* خلفية البوكس */
+      backdrop-filter: blur(16px); /* ضبابية للخلفية خلف العنصر */
+      border: 1px solid var(--line); /* حدود خفيفة */
+      box-shadow: var(--shadow); /* ظل */
     }
 
-    .hero {
-      border-radius: var(--radius-xl);
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: 20px;
+    .hero { /* جزء الهيدر الكبير فوق */
+      border-radius: var(--radius-xl); /* حواف دائرية كبيرة */
+      padding: 28px; /* مسافة داخلية */
+      display: grid; /* Grid */
+      grid-template-columns: 1.25fr 0.75fr; /* عمودين بنسب مختلفة */
+      gap: 20px; /* مسافة بين العمودين */
     }
 
-    .headline {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
+    .headline { /* الحاوية اللي فيها العنوان والتحديث */
+      display: flex; /* Flexbox */
+      align-items: flex-start; /* محاذاة من فوق */
+      justify-content: space-between; /* توزيع بين الطرفين */
+      gap: 16px; /* مسافة */
+      flex-wrap: wrap; /* ينزل سطر جديد لو المساحة صغيرة */
     }
 
-    .title-wrap h1 {
-      margin: 0;
-      font-size: clamp(1.8rem, 3vw, 2.7rem);
-      line-height: 1.05;
-      letter-spacing: -0.03em;
+    .title-wrap h1 { /* تنسيق عنوان الصفحة الرئيسي */
+      margin: 0; /* إزالة المارجن الافتراضي */
+      font-size: clamp(1.8rem, 3vw, 2.7rem); /* حجم خط مرن حسب الشاشة */
+      line-height: 1.05; /* ارتفاع السطر */
+      letter-spacing: -0.03em; /* تقليل المسافة بين الحروف */
     }
 
-    .title-wrap p {
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-size: 0.98rem;
-      max-width: 60ch;
+    .title-wrap p { /* تنسيق وصف العنوان */
+      margin: 10px 0 0; /* مارجن علوي فقط */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.98rem; /* حجم الخط */
+      max-width: 60ch; /* أقصى عرض للنص */
     }
 
-    .pill-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 18px;
+    .pill-group { /* حاوية الـ pills */
+      display: flex; /* ترتيب أفقي */
+      gap: 10px; /* مسافة بين العناصر */
+      flex-wrap: wrap; /* ينزل سطر جديد لو الشاشة ضيقة */
+      margin-top: 18px; /* مسافة فوق */
     }
 
     .pill,
     .tab,
     .btn,
-    .chip {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text);
+    .chip { /* تنسيق مشترك لعناصر كتير */
+      border: 1px solid var(--line); /* حدود */
+      border-radius: 999px; /* حواف دائرية جدًا */
+      background: rgba(255, 255, 255, 0.03); /* خلفية شفافة خفيفة */
+      color: var(--text); /* لون النص */
     }
 
     .pill,
-    .chip {
-      padding: 10px 14px;
-      font-size: 0.92rem;
+    .chip { /* تنسيق خاص للـ pill والـ chip */
+      padding: 10px 14px; /* padding داخلي */
+      font-size: 0.92rem; /* حجم النص */
     }
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+    .stats { /* شبكة الإحصائيات */
+      display: grid; /* Grid */
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* عمودين متساويين */
+      gap: 14px; /* مسافة */
     }
 
-    .stat-box {
-      border-radius: var(--radius-lg);
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      padding: 16px;
-      min-height: 112px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+    .stat-box { /* كل صندوق إحصائية */
+      border-radius: var(--radius-lg); /* حواف دائرية */
+      background: var(--panel-2); /* خلفية */
+      border: 1px solid var(--line); /* حدود */
+      padding: 16px; /* padding */
+      min-height: 112px; /* أقل ارتفاع */
+      display: flex; /* Flex */
+      flex-direction: column; /* ترتيب رأسي */
+      justify-content: space-between; /* توزيع المحتوى فوق/تحت */
     }
 
-    .stat-label {
-      color: var(--muted);
-      font-size: 0.85rem;
+    .stat-label { /* عنوان الإحصائية */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.85rem; /* حجم صغير */
     }
 
-    .stat-value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
+    .stat-value { /* قيمة الإحصائية */
+      font-size: 1.75rem; /* حجم كبير */
+      font-weight: 700; /* تخانة */
+      letter-spacing: -0.03em; /* تقليل المسافة بين الحروف */
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 1.1fr 2fr;
-      gap: 22px;
+    .layout { /* تخطيط الجزء الأوسط */
+      display: grid; /* Grid */
+      grid-template-columns: 1.08fr 1.92fr; /* عمود أيسر أصغر وعمود أيمن أكبر */
+      gap: 22px; /* مسافة */
+      align-items: start; /* محاذاة من الأعلى */
     }
 
-    .card {
-      border-radius: var(--radius-xl);
-      padding: 20px;
+    .left-column { /* العمود الأيسر */
+      display: grid; /* Grid */
+      gap: 22px; /* مسافة بين الكروت */
     }
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
+    .card { /* البطاقات العامة */
+      border-radius: var(--radius-xl); /* حواف */
+      padding: 20px; /* padding */
+    }
+
+    .card-header { /* هيدر أي بطاقة */
+      display: flex; /* Flex */
+      align-items: center; /* محاذاة عمودية */
+      justify-content: space-between; /* توزيع أفقي */
+      gap: 14px; /* مسافة */
+      margin-bottom: 18px; /* مسافة تحت */
+      flex-wrap: wrap; /* ينزل لو الشاشة ضيقة */
     }
 
     .card-header h2,
-    .card-header h3 {
-      margin: 0;
-      letter-spacing: -0.02em;
+    .card-header h3 { /* تنسيق عناوين البطاقات */
+      margin: 0; /* إزالة الهوامش */
+      letter-spacing: -0.02em; /* تقليل التباعد */
     }
 
-    .top-three {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      align-items: end;
+    .top-three { /* شبكة أول 3 لاعبين */
+      display: grid; /* Grid */
+      grid-template-columns: repeat(3, 1fr); /* 3 أعمدة متساوية */
+      gap: 14px; /* مسافة */
+      align-items: end; /* محاذاة للأسفل عشان شكل البوديوم */
     }
 
-    .podium-item {
-      border-radius: 20px;
-      padding: 18px 14px;
-      text-align: center;
-      border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      position: relative;
-      overflow: hidden;
+    .podium-item { /* بطاقة لاعب في البوديوم */
+      border-radius: 20px; /* حواف */
+      padding: 18px 14px; /* padding */
+      text-align: center; /* توسيط النص */
+      border: 1px solid var(--line); /* حدود */
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); /* خلفية متدرجة خفيفة */
+      position: relative; /* عشان نستخدم ::before */
+      overflow: hidden; /* إخفاء أي جزء زائد */
+      cursor: pointer; /* شكل الماوس يبقى clickable */
+      transition: transform 0.2s ease, border-color 0.2s ease; /* أنيميشن ناعم */
     }
 
-    .podium-item::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      opacity: 0.14;
-      pointer-events: none;
+    .podium-item:hover { /* لما الماوس يقف على البطاقة */
+      transform: translateY(-4px); /* تتحرك لفوق شوية */
+      border-color: rgba(255,255,255,0.24); /* الحدود تبان أكتر */
     }
 
-    .podium-item.first::before { background: linear-gradient(180deg, var(--gold), transparent); }
-    .podium-item.second::before { background: linear-gradient(180deg, var(--silver), transparent); }
-    .podium-item.third::before { background: linear-gradient(180deg, var(--bronze), transparent); }
-
-    .podium-item.first { min-height: 290px; }
-    .podium-item.second { min-height: 248px; }
-    .podium-item.third { min-height: 225px; }
-
-    .medal {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      font-size: 1.15rem;
-      margin-bottom: 12px;
-      font-weight: 800;
+    .podium-item::before { /* طبقة تأثير لوني فوق البطاقة */
+      content: ""; /* لازم عشان pseudo-element يظهر */
+      position: absolute; /* تموضع مطلق */
+      inset: 0; /* يملأ العنصر بالكامل */
+      opacity: 0.14; /* شفافية */
+      pointer-events: none; /* مايعطلش الضغط */
     }
 
-    .first .medal { background: rgba(251, 191, 36, 0.18); color: var(--gold); }
-    .second .medal { background: rgba(203, 213, 225, 0.18); color: var(--silver); }
-    .third .medal { background: rgba(217, 119, 6, 0.18); color: #fdba74; }
+    .podium-item.first::before { background: linear-gradient(180deg, var(--gold), transparent); } /* تأثير للترتيب الأول */
+    .podium-item.second::before { background: linear-gradient(180deg, var(--silver), transparent); } /* تأثير للترتيب الثاني */
+    .podium-item.third::before { background: linear-gradient(180deg, var(--bronze), transparent); } /* تأثير للترتيب الثالث */
 
-    .avatar {
-      width: 66px;
-      height: 66px;
-      border-radius: 50%;
-      margin: 0 auto 12px;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 1.2rem;
-      color: #fff;
-      background: linear-gradient(135deg, #22c55e, #0ea5e9);
-      border: 3px solid rgba(255,255,255,0.12);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    .podium-item.first { min-height: 290px; } /* ارتفاع الأول */
+    .podium-item.second { min-height: 248px; } /* ارتفاع الثاني */
+    .podium-item.third { min-height: 225px; } /* ارتفاع الثالث */
+
+    .medal { /* دائرة الميدالية */
+      display: inline-flex; /* Flex صغير */
+      align-items: center; /* توسيط عمودي */
+      justify-content: center; /* توسيط أفقي */
+      width: 42px; /* العرض */
+      height: 42px; /* الارتفاع */
+      border-radius: 50%; /* دائرة */
+      font-size: 1.15rem; /* حجم الأيقونة */
+      margin-bottom: 12px; /* مسافة تحت */
+      font-weight: 800; /* تخانة */
     }
 
-    .name {
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 4px;
+    .first .medal { background: rgba(251, 191, 36, 0.18); color: var(--gold); } /* تنسيق ميدالية الأول */
+    .second .medal { background: rgba(203, 213, 225, 0.18); color: var(--silver); } /* تنسيق ميدالية الثاني */
+    .third .medal { background: rgba(217, 119, 6, 0.18); color: #fdba74; } /* تنسيق ميدالية الثالث */
+
+    .avatar { /* صورة رمزية كبيرة */
+      width: 66px; /* عرض */
+      height: 66px; /* ارتفاع */
+      border-radius: 50%; /* دائرة */
+      margin: 0 auto 12px; /* توسيط + مسافة تحت */
+      display: grid; /* Grid */
+      place-items: center; /* توسيط المحتوى */
+      font-weight: 800; /* تخانة */
+      font-size: 1.2rem; /* حجم الحروف */
+      color: #fff; /* لون أبيض */
+      background: linear-gradient(135deg, #22c55e, #0ea5e9); /* خلفية متدرجة */
+      border: 3px solid rgba(255,255,255,0.12); /* إطار */
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25); /* ظل */
     }
 
-    .meta {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 14px;
+    .name { /* اسم اللاعب */
+      font-weight: 700; /* تخانة */
+      font-size: 1rem; /* حجم */
+      margin-bottom: 4px; /* مسافة تحت */
     }
 
-    .score {
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
+    .meta { /* بيانات إضافية زي الدولة والفريق */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.9rem; /* حجم */
+      margin-bottom: 14px; /* مسافة */
     }
 
-    .controls {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 18px;
+    .score { /* النتيجة */
+      font-size: 1.5rem; /* حجم كبير */
+      font-weight: 800; /* تخانة */
+      letter-spacing: -0.03em; /* تباعد أقل */
+    }
+
+    .controls { /* حاوية أدوات التحكم */
+      display: grid; /* Grid */
+      gap: 14px; /* مسافة */
+      margin-bottom: 18px; /* مسافة تحت */
     }
 
     .search-row,
-    .filter-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .filter-row { /* صف البحث وصف الفلاتر */
+      display: flex; /* Flex */
+      gap: 12px; /* مسافة */
+      flex-wrap: wrap; /* ينزل سطر جديد لو لازم */
     }
 
     .input,
-    .select {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--line);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 12px 14px;
-      outline: none;
-      min-height: 46px;
+    .select { /* تنسيق input و select */
+      background: rgba(255,255,255,0.04); /* خلفية */
+      border: 1px solid var(--line); /* حدود */
+      color: var(--text); /* لون النص */
+      border-radius: 14px; /* حواف */
+      padding: 12px 14px; /* padding */
+      outline: none; /* إزالة حدود focus الافتراضية */
+      min-height: 46px; /* أقل ارتفاع */
     }
 
-    .input {
-      flex: 1 1 260px;
+    .input { /* تنسيق حقل الإدخال */
+      flex: 1 1 260px; /* يتمدد مع حد أدنى */
     }
 
-    .select {
-      min-width: 160px;
+    .select { /* تنسيق القائمة المنسدلة */
+      min-width: 160px; /* أقل عرض */
     }
 
-    .tabs {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .tabs { /* حاوية التابات */
+      display: flex; /* Flex */
+      gap: 10px; /* مسافة */
+      flex-wrap: wrap; /* التفاف */
     }
 
     .tab,
-    .btn {
-      cursor: pointer;
-      padding: 10px 14px;
-      transition: 0.2s ease;
-      font-weight: 600;
+    .btn { /* التابات والأزرار */
+      cursor: pointer; /* شكل الماوس */
+      padding: 10px 14px; /* padding */
+      transition: 0.2s ease; /* حركة ناعمة */
+      font-weight: 600; /* تخانة */
     }
 
     .tab.active,
-    .btn:hover {
-      background: rgba(255,255,255,0.10);
-      border-color: rgba(255,255,255,0.18);
+    .btn:hover { /* التاب النشط أو الزر وقت hover */
+      background: rgba(255,255,255,0.10); /* خلفية أوضح */
+      border-color: rgba(255,255,255,0.18); /* حدود أوضح */
     }
 
-    .table-wrap {
-      overflow: hidden;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.02);
+    .table-wrap { /* الحاوية الخارجية للجدول */
+      overflow: hidden; /* يمنع الزيادات */
+      border-radius: 18px; /* حواف */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.02); /* خلفية */
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    table { /* الجدول نفسه */
+      width: 100%; /* ياخد العرض كله */
+      border-collapse: collapse; /* دمج الحدود */
     }
 
-    thead {
-      background: rgba(255,255,255,0.04);
+    thead { /* رأس الجدول */
+      background: rgba(255,255,255,0.04); /* خلفية بسيطة */
     }
 
-    th, td {
-      padding: 16px 14px;
-      text-align: left;
-      border-bottom: 1px solid var(--line);
-      vertical-align: middle;
+    th, td { /* خلايا الرأس والمحتوى */
+      padding: 16px 14px; /* padding */
+      text-align: left; /* محاذاة لليسار */
+      border-bottom: 1px solid var(--line); /* خط تحت كل صف */
+      vertical-align: middle; /* محاذاة رأسية في المنتصف */
     }
 
-    tbody tr {
-      transition: background 0.2s ease, transform 0.2s ease;
+    tbody tr { /* صفوف جسم الجدول */
+      transition: background 0.2s ease, transform 0.2s ease; /* حركة ناعمة */
     }
 
-    tbody tr:hover {
-      background: rgba(255,255,255,0.03);
+    tbody tr:hover { /* لما تمرر على صف */
+      background: rgba(255,255,255,0.03); /* تظليل خفيف */
     }
 
-    tbody tr.current-user {
-      background: rgba(34, 197, 94, 0.10);
-      outline: 1px solid rgba(34, 197, 94, 0.22);
+    tbody tr.current-user { /* الصف الخاص بالمستخدم الحالي */
+      background: rgba(34, 197, 94, 0.10); /* خلفية خضراء خفيفة */
+      outline: 1px solid rgba(34, 197, 94, 0.22); /* إطار */
     }
 
-    .rank-badge {
-      min-width: 44px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.03);
-      font-weight: 700;
+    .rank-badge { /* شارة الترتيب */
+      min-width: 44px; /* أقل عرض */
+      display: inline-flex; /* Flex */
+      justify-content: center; /* توسيط أفقي */
+      align-items: center; /* توسيط عمودي */
+      padding: 8px 12px; /* padding */
+      border-radius: 999px; /* دائري */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.03); /* خلفية */
+      font-weight: 700; /* تخانة */
     }
 
-    .player-cell {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .player-cell { /* خلية اللاعب */
+      display: flex; /* Flex */
+      align-items: center; /* محاذاة */
+      gap: 12px; /* مسافة */
     }
 
-    .mini-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      color: white;
-      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-      flex-shrink: 0;
+    .mini-avatar { /* الصورة الرمزية الصغيرة */
+      width: 42px; /* عرض */
+      height: 42px; /* ارتفاع */
+      border-radius: 50%; /* دائرة */
+      display: grid; /* Grid */
+      place-items: center; /* توسيط */
+      font-weight: 800; /* تخانة */
+      color: white; /* لون الخط */
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4); /* خلفية متدرجة */
+      flex-shrink: 0; /* مايصغرهاش */
     }
 
-    .player-info strong {
-      display: block;
-      margin-bottom: 3px;
+    .player-info strong { /* اسم اللاعب */
+      display: block; /* سطر لوحده */
+      margin-bottom: 3px; /* مسافة تحت */
     }
 
-    .player-info span {
-      color: var(--muted);
-      font-size: 0.88rem;
+    .player-info span { /* الدولة أو النص الثانوي */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.88rem; /* حجم */
     }
 
-    .trend {
-      font-weight: 700;
+    .trend { /* تنسيق عام للترند */
+      font-weight: 700; /* تخانة */
     }
 
-    .trend.up { color: var(--accent); }
-    .trend.down { color: var(--danger); }
+    .trend.up { color: var(--accent); } /* لو التريند صاعد يبقى أخضر */
+    .trend.down { color: var(--danger); } /* لو التريند هابط يبقى أحمر */
 
-    .footer-note {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-top: 12px;
+    .footer-note { /* الملاحظة تحت الجدول */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.9rem; /* حجم */
+      margin-top: 12px; /* مسافة فوق */
     }
 
-    @media (max-width: 980px) {
-      .hero,
-      .layout {
-        grid-template-columns: 1fr;
+    .quests-list { /* قائمة الـ quests */
+      display: grid; /* Grid */
+      gap: 14px; /* مسافة */
+    }
+
+    .quest-item { /* كل Quest */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.03); /* خلفية */
+      border-radius: 18px; /* حواف */
+      padding: 16px; /* padding */
+      display: grid; /* Grid */
+      gap: 12px; /* مسافة */
+    }
+
+    .quest-top { /* الجزء العلوي من الكويست */
+      display: flex; /* Flex */
+      justify-content: space-between; /* توزيع */
+      gap: 12px; /* مسافة */
+      align-items: flex-start; /* محاذاة من فوق */
+    }
+
+    .quest-badge { /* شارة نوع الكويست */
+      padding: 6px 10px; /* padding */
+      border-radius: 999px; /* دائري */
+      font-size: 0.78rem; /* حجم صغير */
+      font-weight: 700; /* تخانة */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.05); /* خلفية */
+      white-space: nowrap; /* يمنع نزول النص */
+    }
+
+    .quest-title { /* عنوان الكويست */
+      font-weight: 700; /* تخانة */
+      margin-bottom: 4px; /* مسافة */
+    }
+
+    .quest-desc { /* وصف الكويست */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.9rem; /* حجم */
+      line-height: 1.45; /* ارتفاع السطر */
+    }
+
+    .progress-wrap { /* الخلفية الخارجية لشريط التقدم */
+      width: 100%; /* عرض كامل */
+      height: 10px; /* ارتفاع */
+      border-radius: 999px; /* دائري */
+      background: rgba(255,255,255,0.06); /* خلفية */
+      overflow: hidden; /* يخفي الزيادة */
+      border: 1px solid rgba(255,255,255,0.05); /* حدود */
+    }
+
+    .progress-bar { /* شريط التقدم الداخلي */
+      height: 100%; /* نفس ارتفاع الحاوية */
+      border-radius: 999px; /* دائري */
+      background: linear-gradient(90deg, var(--accent), var(--info)); /* تدرج لوني */
+      width: 0%; /* هيبدأ صفر ويتغير من JS */
+      transition: width 0.3s ease; /* حركة ناعمة عند تغير العرض */
+    }
+
+    .quest-bottom { /* الجزء السفلي من الكويست */
+      display: flex; /* Flex */
+      justify-content: space-between; /* توزيع */
+      align-items: center; /* محاذاة */
+      gap: 12px; /* مسافة */
+      flex-wrap: wrap; /* التفاف */
+    }
+
+    .quest-meta { /* بيانات الكويست */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.85rem; /* حجم */
+    }
+
+    .claim-btn { /* زر استلام المكافأة */
+      border: 1px solid rgba(34, 197, 94, 0.24); /* حدود خضراء */
+      background: rgba(34, 197, 94, 0.10); /* خلفية خضراء */
+      color: #bbf7d0; /* لون النص */
+      border-radius: 999px; /* دائري */
+      padding: 9px 14px; /* padding */
+      font-weight: 700; /* تخانة */
+      cursor: pointer; /* قابل للنقر */
+      transition: 0.2s ease; /* حركة ناعمة */
+    }
+
+    .claim-btn:hover:not(:disabled) { /* لو الزر متاح وعملت hover */
+      transform: translateY(-1px); /* يطلع لفوق شوية */
+      background: rgba(34, 197, 94, 0.16); /* الخلفية تقوى */
+    }
+
+    .claim-btn:disabled { /* لو الزر معطل */
+      opacity: 0.45; /* شفاف */
+      cursor: not-allowed; /* شكل غير مسموح */
+    }
+
+    .profiles-section { /* قسم البروفايلات */
+      display: grid; /* Grid */
+      gap: 16px; /* مسافة */
+    }
+
+    .profiles-grid { /* شبكة بطاقات البروفايل */
+      display: grid; /* Grid */
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 أعمدة */
+      gap: 16px; /* مسافة */
+    }
+
+    .profile-card { /* بطاقة بروفايل اللاعب */
+      position: relative; /* لطبقة before */
+      border-radius: 22px; /* حواف */
+      border: 1px solid var(--line); /* حدود */
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); /* خلفية */
+      overflow: hidden; /* إخفاء الزيادة */
+      padding: 20px; /* padding */
+      display: grid; /* Grid */
+      gap: 16px; /* مسافة */
+      min-height: 320px; /* أقل ارتفاع */
+    }
+
+    .profile-card::before { /* طبقة لونية فوق البطاقة */
+      content: ""; /* لازم */
+      position: absolute; /* تموضع مطلق */
+      inset: 0; /* يملأ البطاقة */
+      opacity: 0.12; /* شفافية */
+      pointer-events: none; /* مايعطلش التفاعل */
+    }
+
+    .profile-card.first::before { background: linear-gradient(180deg, var(--gold), transparent); } /* تأثير الأول */
+    .profile-card.second::before { background: linear-gradient(180deg, var(--silver), transparent); } /* تأثير الثاني */
+    .profile-card.third::before { background: linear-gradient(180deg, var(--bronze), transparent); } /* تأثير الثالث */
+
+    .profile-header { /* هيدر البروفايل */
+      display: flex; /* Flex */
+      align-items: center; /* محاذاة */
+      gap: 14px; /* مسافة */
+      position: relative; /* فوق الطبقة */
+      z-index: 1; /* لضمان ظهوره */
+    }
+
+    .profile-avatar { /* صورة رمزية كبيرة في البروفايل */
+      width: 74px; /* عرض */
+      height: 74px; /* ارتفاع */
+      border-radius: 50%; /* دائرة */
+      display: grid; /* Grid */
+      place-items: center; /* توسيط */
+      font-size: 1.35rem; /* حجم */
+      font-weight: 800; /* تخانة */
+      color: white; /* لون النص */
+      background: linear-gradient(135deg, var(--violet), var(--info)); /* خلفية */
+      border: 3px solid rgba(255,255,255,0.12); /* إطار */
+      flex-shrink: 0; /* مايصغرش */
+    }
+
+    .profile-title h3 { /* اسم اللاعب في البروفايل */
+      margin: 0 0 6px; /* مارجن */
+      font-size: 1.1rem; /* حجم */
+    }
+
+    .profile-title p { /* معلومات إضافية */
+      margin: 0; /* إزالة الهوامش */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.9rem; /* حجم */
+    }
+
+    .profile-rank { /* سطر الترتيب + اللقب */
+      display: inline-flex; /* Flex */
+      align-items: center; /* محاذاة */
+      gap: 8px; /* مسافة */
+      width: fit-content; /* على قد المحتوى */
+      padding: 8px 12px; /* padding */
+      border-radius: 999px; /* دائري */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.04); /* خلفية */
+      font-size: 0.84rem; /* حجم */
+      font-weight: 700; /* تخانة */
+      position: relative; /* فوق الطبقة */
+      z-index: 1; /* ترتيب الظهور */
+    }
+
+    .profile-stats { /* شبكة الإحصائيات داخل البروفايل */
+      display: grid; /* Grid */
+      grid-template-columns: repeat(2, minmax(0, 1fr)); /* عمودين */
+      gap: 12px; /* مسافة */
+      position: relative; /* فوق الطبقة */
+      z-index: 1; /* ترتيب */
+    }
+
+    .mini-stat { /* صندوق إحصائية صغير */
+      border-radius: 16px; /* حواف */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.03); /* خلفية */
+      padding: 12px; /* padding */
+    }
+
+    .mini-stat-label { /* عنوان الإحصائية الصغيرة */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.8rem; /* حجم */
+      margin-bottom: 6px; /* مسافة */
+    }
+
+    .mini-stat-value { /* قيمة الإحصائية الصغيرة */
+      font-weight: 800; /* تخانة */
+      font-size: 1rem; /* حجم */
+    }
+
+    .profile-bio { /* الوصف الشخصي */
+      color: #d9e2f0; /* لون النص */
+      line-height: 1.6; /* ارتفاع سطر */
+      font-size: 0.92rem; /* حجم */
+      position: relative; /* فوق الطبقة */
+      z-index: 1; /* ترتيب */
+    }
+
+    .tag-row { /* صف التاجات */
+      display: flex; /* Flex */
+      gap: 8px; /* مسافة */
+      flex-wrap: wrap; /* التفاف */
+      position: relative; /* فوق الطبقة */
+      z-index: 1; /* ترتيب */
+    }
+
+    .tag { /* شكل كل تاج */
+      border-radius: 999px; /* دائري */
+      padding: 7px 10px; /* padding */
+      font-size: 0.78rem; /* حجم */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.04); /* خلفية */
+      color: var(--text); /* لون النص */
+    }
+
+    .profile-btn { /* زر عرض البروفايل الكامل */
+      width: fit-content; /* على قد المحتوى */
+      border-radius: 999px; /* دائري */
+      padding: 10px 14px; /* padding */
+      border: 1px solid rgba(56, 189, 248, 0.24); /* حدود زرقاء */
+      background: rgba(56, 189, 248, 0.10); /* خلفية زرقاء */
+      color: #bae6fd; /* لون النص */
+      font-weight: 700; /* تخانة */
+      cursor: pointer; /* قابل للنقر */
+      position: relative; /* فوق الطبقة */
+      z-index: 1; /* ترتيب */
+    }
+
+    .profile-btn:hover { /* عند المرور على الزر */
+      background: rgba(56, 189, 248, 0.18); /* خلفية أوضح */
+    }
+
+    .modal { /* الخلفية السوداء للمودال */
+      position: fixed; /* ثابتة فوق الصفحة */
+      inset: 0; /* تغطي الشاشة كلها */
+      background: rgba(2, 6, 23, 0.72); /* خلفية معتمة */
+      backdrop-filter: blur(8px); /* ضبابية */
+      display: none; /* مخفية افتراضيًا */
+      align-items: center; /* توسيط عمودي */
+      justify-content: center; /* توسيط أفقي */
+      padding: 20px; /* padding */
+      z-index: 1000; /* فوق كل العناصر */
+    }
+
+    .modal.open { /* لما نضيف class open */
+      display: flex; /* يظهر المودال */
+    }
+
+    .modal-content { /* صندوق محتوى المودال */
+      width: min(640px, 100%); /* أقصى عرض 640 */
+      background: var(--panel-3); /* خلفية */
+      border: 1px solid var(--line); /* حدود */
+      border-radius: 28px; /* حواف */
+      box-shadow: var(--shadow); /* ظل */
+      padding: 24px; /* padding */
+      position: relative; /* للزر */
+      overflow: hidden; /* إخفاء الزيادة */
+    }
+
+    .modal-close { /* زر الغلق */
+      position: absolute; /* في زاوية المودال */
+      top: 16px; /* من فوق */
+      right: 16px; /* من اليمين */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.04); /* خلفية */
+      color: var(--text); /* لون النص */
+      width: 40px; /* عرض */
+      height: 40px; /* ارتفاع */
+      border-radius: 50%; /* دائرة */
+      cursor: pointer; /* قابل للنقر */
+      font-size: 1rem; /* حجم */
+      font-weight: 700; /* تخانة */
+    }
+
+    .modal-close:hover { /* عند المرور على زر الغلق */
+      background: rgba(255,255,255,0.10); /* خلفية أوضح */
+    }
+
+    .modal-body { /* جسم المودال */
+      display: grid; /* Grid */
+      gap: 18px; /* مسافة */
+    }
+
+    .modal-top { /* أعلى المودال */
+      display: flex; /* Flex */
+      gap: 16px; /* مسافة */
+      align-items: center; /* محاذاة */
+      padding-right: 48px; /* مسافة لزر الغلق */
+      flex-wrap: wrap; /* التفاف */
+    }
+
+    .modal-avatar { /* صورة رمزية بالمودال */
+      width: 90px; /* عرض */
+      height: 90px; /* ارتفاع */
+      border-radius: 50%; /* دائرة */
+      display: grid; /* Grid */
+      place-items: center; /* توسيط */
+      font-size: 1.5rem; /* حجم */
+      font-weight: 800; /* تخانة */
+      color: white; /* لون */
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4); /* خلفية */
+      border: 3px solid rgba(255,255,255,0.12); /* إطار */
+    }
+
+    .modal-title h2 { /* اسم اللاعب داخل المودال */
+      margin: 0 0 8px; /* مارجن */
+      font-size: 1.45rem; /* حجم */
+    }
+
+    .modal-title p { /* معلومات إضافية */
+      margin: 0; /* إزالة الهوامش */
+      color: var(--muted); /* لون هادئ */
+    }
+
+    .modal-grid { /* شبكة الصناديق داخل المودال */
+      display: grid; /* Grid */
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 أعمدة */
+      gap: 12px; /* مسافة */
+    }
+
+    .modal-box { /* كل صندوق داخل المودال */
+      border-radius: 16px; /* حواف */
+      border: 1px solid var(--line); /* حدود */
+      background: rgba(255,255,255,0.03); /* خلفية */
+      padding: 14px; /* padding */
+    }
+
+    .modal-box span { /* عنوان صغير داخل الصندوق */
+      display: block; /* سطر لوحده */
+      color: var(--muted); /* لون هادئ */
+      font-size: 0.8rem; /* حجم */
+      margin-bottom: 6px; /* مسافة */
+    }
+
+    .modal-box strong { /* القيمة داخل الصندوق */
+      font-size: 1rem; /* حجم */
+    }
+
+    .modal-bio { /* النص التعريفي داخل المودال */
+      color: #dce7f5; /* لون */
+      line-height: 1.7; /* ارتفاع سطر */
+    }
+
+    @media (max-width: 1100px) { /* لو عرض الشاشة 1100 أو أقل */
+      .profiles-grid {
+        grid-template-columns: 1fr; /* خلي بطاقات البروفايل عمود واحد */
       }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 980px) { /* لو الشاشة أصغر */
+      .hero,
+      .layout {
+        grid-template-columns: 1fr; /* خلي الـ hero والـ layout عمود واحد */
+      }
+    }
+
+    @media (max-width: 760px) { /* لو الشاشة موبايل تقريبًا */
       .top-three {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* خلي البوديوم عمود واحد */
       }
 
       .podium-item.first,
       .podium-item.second,
       .podium-item.third {
-        min-height: unset;
+        min-height: unset; /* شيل الارتفاعات الثابتة */
       }
 
       th:nth-child(4), td:nth-child(4),
       th:nth-child(5), td:nth-child(5) {
-        display: none;
+        display: none; /* إخفاء عمودي Trend و Team على الشاشات الصغيرة */
+      }
+
+      .modal-grid,
+      .profile-stats {
+        grid-template-columns: 1fr; /* خليهم عمود واحد */
+      }
+
+      .modal-top {
+        align-items: flex-start; /* محاذاة من فوق */
       }
     }
-  </style>
+  </style> <!-- نهاية CSS -->
 </head>
-<body>
-  <div class="container">
-    <section class="hero">
-      <div>
-        <div class="headline">
-          <div class="title-wrap">
-            <h1>Leaderboard Dashboard</h1>
+
+<body> <!-- بداية محتوى الصفحة الظاهر -->
+  <div class="container"> <!-- الحاوية الرئيسية لكل الصفحة -->
+
+    <section class="hero"> <!-- القسم العلوي الرئيسي -->
+      <div> <!-- العمود الأول في الـ hero -->
+        <div class="headline"> <!-- حاوية العنوان والتحديث -->
+          <div class="title-wrap"> <!-- العنوان والوصف -->
+            <h1>Leaderboard Dashboard</h1> <!-- عنوان الصفحة -->
             <p>
               Clean, modern, and actually usable. This version includes a podium, filters,
-              search, current-user highlight, and dynamic ranking logic.
-            </p>
+              search, current-user highlight, quests, and profile cards for the top players.
+            </p> <!-- وصف مختصر للداشبورد -->
           </div>
-          <div class="chip" id="lastUpdated">Updated: --</div>
+
+          <div class="chip" id="lastUpdated">Updated: --</div> <!-- مكان وقت آخر تحديث، هيتغير بالجافاسكريبت -->
         </div>
 
-        <div class="pill-group">
-          <div class="pill">Live Ranking</div>
-          <div class="pill">Search Players</div>
-          <div class="pill">Week / Month / All Time</div>
-          <div class="pill">Top 3 Podium</div>
+        <div class="pill-group"> <!-- مجموعة مميزات سريعة -->
+          <div class="pill">Live Ranking</div> <!-- ميزة -->
+          <div class="pill">Search Players</div> <!-- ميزة -->
+          <div class="pill">Week / Month / All Time</div> <!-- ميزة -->
+          <div class="pill">Top 3 Podium</div> <!-- ميزة -->
+          <div class="pill">Quests System</div> <!-- ميزة -->
+          <div class="pill">Player Profiles</div> <!-- ميزة -->
         </div>
       </div>
 
-      <div class="stats">
-        <div class="stat-box">
-          <div class="stat-label">Total Players</div>
-          <div class="stat-value" id="statPlayers">0</div>
+      <div class="stats"> <!-- شبكة الإحصائيات -->
+        <div class="stat-box"> <!-- صندوق إحصائية -->
+          <div class="stat-label">Total Players</div> <!-- عنوان -->
+          <div class="stat-value" id="statPlayers">0</div> <!-- القيمة هتتحدث من JS -->
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Highest Score</div>
-          <div class="stat-value" id="statTopScore">0</div>
+
+        <div class="stat-box"> <!-- صندوق إحصائية -->
+          <div class="stat-label">Highest Score</div> <!-- عنوان -->
+          <div class="stat-value" id="statTopScore">0</div> <!-- القيمة -->
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Average Score</div>
-          <div class="stat-value" id="statAvgScore">0</div>
+
+        <div class="stat-box"> <!-- صندوق إحصائية -->
+          <div class="stat-label">Average Score</div> <!-- عنوان -->
+          <div class="stat-value" id="statAvgScore">0</div> <!-- القيمة -->
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Current User Rank</div>
-          <div class="stat-value" id="statMyRank">--</div>
+
+        <div class="stat-box"> <!-- صندوق إحصائية -->
+          <div class="stat-label">Current User Rank</div> <!-- عنوان -->
+          <div class="stat-value" id="statMyRank">--</div> <!-- ترتيب المستخدم الحالي -->
         </div>
       </div>
     </section>
 
-    <section class="layout">
-      <div class="card">
-        <div class="card-header">
-          <h2>Top 3 Players</h2>
-          <div class="chip" id="activeModeLabel">Mode: All Time</div>
+    <section class="layout"> <!-- القسم الأوسط بتخطيط عمودين -->
+      <div class="left-column"> <!-- العمود الأيسر -->
+        <div class="card"> <!-- كارت Top 3 -->
+          <div class="card-header"> <!-- هيدر الكارت -->
+            <h2>Top 3 Players</h2> <!-- عنوان -->
+            <div class="chip" id="activeModeLabel">Mode: All Time</div> <!-- الوضع الحالي -->
+          </div>
+          <div class="top-three" id="topThree"></div> <!-- مكان عرض أول 3 لاعبين -->
         </div>
-        <div class="top-three" id="topThree"></div>
+
+        <div class="card"> <!-- كارت الـ quests -->
+          <div class="card-header"> <!-- هيدر -->
+            <h2>Quests</h2> <!-- عنوان -->
+            <div class="chip">Daily Rewards</div> <!-- شارة -->
+          </div>
+          <div class="quests-list" id="questsList"></div> <!-- مكان عرض الكويستات -->
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <h2>Rankings</h2>
-          <div class="tabs" id="modeTabs">
-            <button class="tab active" data-mode="allTime">All Time</button>
-            <button class="tab" data-mode="monthly">Monthly</button>
-            <button class="tab" data-mode="weekly">Weekly</button>
+      <div class="card"> <!-- العمود الأيمن: جدول الترتيب -->
+        <div class="card-header"> <!-- هيدر الجدول -->
+          <h2>Rankings</h2> <!-- عنوان -->
+          <div class="tabs" id="modeTabs"> <!-- التابات الخاصة بالـ modes -->
+            <button class="tab active" data-mode="allTime">All Time</button> <!-- تاب All Time -->
+            <button class="tab" data-mode="monthly">Monthly</button> <!-- تاب Monthly -->
+            <button class="tab" data-mode="weekly">Weekly</button> <!-- تاب Weekly -->
           </div>
         </div>
 
-        <div class="controls">
-          <div class="search-row">
-            <input id="searchInput" class="input" type="text" placeholder="Search by name, team, or country..." />
-            <select id="teamFilter" class="select">
-              <option value="all">All Teams</option>
+        <div class="controls"> <!-- أدوات البحث والفلترة -->
+          <div class="search-row"> <!-- صف البحث -->
+            <input id="searchInput" class="input" type="text" placeholder="Search by name, team, or country..." /> <!-- حقل بحث -->
+            <select id="teamFilter" class="select"> <!-- فلتر الفريق -->
+              <option value="all">All Teams</option> <!-- اختيار افتراضي -->
             </select>
           </div>
-          <div class="filter-row">
-            <button class="btn" id="sortScoreBtn">Sort by Score ↓</button>
-            <button class="btn" id="sortNameBtn">Sort by Name A-Z</button>
-            <button class="btn" id="resetBtn">Reset Filters</button>
+
+          <div class="filter-row"> <!-- صف الأزرار -->
+            <button class="btn" id="sortScoreBtn">Sort by Score ↓</button> <!-- ترتيب بالنقاط -->
+            <button class="btn" id="sortNameBtn">Sort by Name A-Z</button> <!-- ترتيب بالاسم -->
+            <button class="btn" id="resetBtn">Reset Filters</button> <!-- إعادة تعيين -->
           </div>
         </div>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Player</th>
-                <th>Score</th>
-                <th>Trend</th>
-                <th>Team</th>
+        <div class="table-wrap"> <!-- حاوية الجدول -->
+          <table> <!-- الجدول -->
+            <thead> <!-- رأس الجدول -->
+              <tr> <!-- صف -->
+                <th>Rank</th> <!-- عمود الترتيب -->
+                <th>Player</th> <!-- عمود اللاعب -->
+                <th>Score</th> <!-- عمود النقاط -->
+                <th>Trend</th> <!-- عمود الاتجاه -->
+                <th>Team</th> <!-- عمود الفريق -->
               </tr>
             </thead>
-            <tbody id="leaderboardBody"></tbody>
+            <tbody id="leaderboardBody"></tbody> <!-- جسم الجدول اللي هيتولد بالجافاسكريبت -->
           </table>
         </div>
-        <div class="footer-note">Tip: the current user is highlighted so they do not need to play Where’s Waldo with their rank.</div>
+
+        <div class="footer-note">Tip: the current user is highlighted so they do not need to play Where’s Waldo with their rank.</div> <!-- ملاحظة أسفل الجدول -->
       </div>
+    </section>
+
+    <section class="card profiles-section"> <!-- قسم البروفايلات -->
+      <div class="card-header"> <!-- الهيدر -->
+        <h2>Champion Profiles</h2> <!-- عنوان -->
+        <div class="chip">Top 3 Dynamic Profiles</div> <!-- شارة -->
+      </div>
+      <div class="profiles-grid" id="profilesGrid"></div> <!-- مكان عرض بروفايلات أول 3 -->
     </section>
   </div>
 
-  <script>
-    const currentUserId = 4;
+  <div class="modal" id="profileModal"> <!-- المودال الخاص بعرض بروفايل كامل -->
+    <div class="modal-content"> <!-- صندوق المودال -->
+      <button class="modal-close" id="closeModal">✕</button> <!-- زر الغلق -->
+      <div class="modal-body" id="modalBody"></div> <!-- محتوى المودال بيتولد بالجافاسكريبت -->
+    </div>
+  </div>
 
-    const players = [
-      { id: 1, name: 'Lina Hassan', country: 'Egypt', team: 'Alpha', weekly: 220, monthly: 740, allTime: 2480, trend: 'up' },
-      { id: 2, name: 'Omar Tarek', country: 'Jordan', team: 'Nova', weekly: 205, monthly: 790, allTime: 2540, trend: 'down' },
-      { id: 3, name: 'Sara Ali', country: 'Saudi Arabia', team: 'Alpha', weekly: 240, monthly: 860, allTime: 2715, trend: 'up' },
-      { id: 4, name: 'You', country: 'Egypt', team: 'Nova', weekly: 198, monthly: 705, allTime: 2300, trend: 'up' },
-      { id: 5, name: 'Mazen Adel', country: 'UAE', team: 'Vertex', weekly: 190, monthly: 640, allTime: 2190, trend: 'down' },
-      { id: 6, name: 'Nour Samir', country: 'Egypt', team: 'Vertex', weekly: 176, monthly: 615, allTime: 2080, trend: 'up' },
-      { id: 7, name: 'Yousef Karim', country: 'Kuwait', team: 'Nova', weekly: 214, monthly: 720, allTime: 2410, trend: 'up' },
-      { id: 8, name: 'Mariam Essam', country: 'Qatar', team: 'Pulse', weekly: 169, monthly: 590, allTime: 1995, trend: 'down' },
-      { id: 9, name: 'Huda Nasser', country: 'Bahrain', team: 'Pulse', weekly: 227, monthly: 775, allTime: 2505, trend: 'up' },
-      { id: 10, name: 'Adam Fares', country: 'Egypt', team: 'Alpha', weekly: 155, monthly: 560, allTime: 1840, trend: 'down' }
+  <script> // بداية JavaScript
+
+    const currentUserId = 4; // ده ID الخاص بالمستخدم الحالي عشان نميزه في الجدول
+
+    const players = [ // مصفوفة اللاعبين
+      {
+        id: 1, // معرف اللاعب
+        name: 'Lina Hassan', // اسم اللاعب
+        country: 'Egypt', // الدولة
+        team: 'Alpha', // الفريق
+        weekly: 220, // نقاط الأسبوع
+        monthly: 740, // نقاط الشهر
+        allTime: 2480, // نقاط كل الأوقات
+        trend: 'up', // اتجاه الأداء
+        level: 18, // المستوى
+        wins: 46, // عدد الانتصارات
+        questsCompleted: 22, // عدد الكويستات المكتملة
+        title: 'Tactical Climber', // لقب اللاعب
+        favoriteMode: 'Arena Rush', // الطور المفضل
+        bio: 'A focused competitor known for clean strategy, stable progress, and strong endgame decisions. Usually climbs quietly, then steals the spotlight.', // نبذة
+        badges: ['Fast Learner', 'Win Streak', 'Team Alpha'] // الشارات
+      },
+      {
+        id: 2,
+        name: 'Omar Tarek',
+        country: 'Jordan',
+        team: 'Nova',
+        weekly: 205,
+        monthly: 790,
+        allTime: 2540,
+        trend: 'down',
+        level: 19,
+        wins: 51,
+        questsCompleted: 25,
+        title: 'Score Machine',
+        favoriteMode: 'Battle Queue',
+        bio: 'A high-volume scorer with aggressive pacing and consistent pressure. Drops points sometimes, but still stays dangerously close to the crown.',
+        badges: ['Sharp Shooter', 'Veteran', 'Nova Core']
+      },
+      {
+        id: 3,
+        name: 'Sara Ali',
+        country: 'Saudi Arabia',
+        team: 'Alpha',
+        weekly: 240,
+        monthly: 860,
+        allTime: 2715,
+        trend: 'up',
+        level: 22,
+        wins: 63,
+        questsCompleted: 31,
+        title: 'Season Queen',
+        favoriteMode: 'Ranked Elite',
+        bio: 'Dominates with elite consistency and scary momentum. The kind of player who makes second place look like unpaid internship energy.',
+        badges: ['MVP', 'Top Ranked', 'Alpha Captain']
+      },
+      {
+        id: 4,
+        name: 'You',
+        country: 'Egypt',
+        team: 'Nova',
+        weekly: 198,
+        monthly: 705,
+        allTime: 2300,
+        trend: 'up',
+        level: 17,
+        wins: 39,
+        questsCompleted: 20,
+        title: 'Dark Horse',
+        favoriteMode: 'Challenge Mix',
+        bio: 'Balanced and flexible. Strong potential, rising steadily, and one good streak away from bullying the top 3.',
+        badges: ['Underdog', 'Quest Grinder', 'Nova Unit']
+      },
+      {
+        id: 5,
+        name: 'Mazen Adel',
+        country: 'UAE',
+        team: 'Vertex',
+        weekly: 190,
+        monthly: 640,
+        allTime: 2190,
+        trend: 'down',
+        level: 16,
+        wins: 34,
+        questsCompleted: 18,
+        title: 'Control Player',
+        favoriteMode: 'Precision Match',
+        bio: 'Methodical player who values control and steady returns over flashy swings.',
+        badges: ['Calm Hands', 'Reliable', 'Vertex']
+      },
+      {
+        id: 6,
+        name: 'Nour Samir',
+        country: 'Egypt',
+        team: 'Vertex',
+        weekly: 176,
+        monthly: 615,
+        allTime: 2080,
+        trend: 'up',
+        level: 15,
+        wins: 30,
+        questsCompleted: 17,
+        title: 'Steady Builder',
+        favoriteMode: 'Classic Ladder',
+        bio: 'Builds momentum through discipline and good decision-making.',
+        badges: ['Comeback', 'Builder', 'Vertex']
+      },
+      {
+        id: 7,
+        name: 'Yousef Karim',
+        country: 'Kuwait',
+        team: 'Nova',
+        weekly: 214,
+        monthly: 720,
+        allTime: 2410,
+        trend: 'up',
+        level: 18,
+        wins: 42,
+        questsCompleted: 21,
+        title: 'Efficient Closer',
+        favoriteMode: 'Rank Sprint',
+        bio: 'Great at converting strong starts into clean finishes.',
+        badges: ['Closer', 'Focused', 'Nova']
+      },
+      {
+        id: 8,
+        name: 'Mariam Essam',
+        country: 'Qatar',
+        team: 'Pulse',
+        weekly: 169,
+        monthly: 590,
+        allTime: 1995,
+        trend: 'down',
+        level: 14,
+        wins: 26,
+        questsCompleted: 14,
+        title: 'Creative Runner',
+        favoriteMode: 'Quick Match',
+        bio: 'Fast and creative, but still refining consistency under pressure.',
+        badges: ['Creative', 'Speed Run', 'Pulse']
+      },
+      {
+        id: 9,
+        name: 'Huda Nasser',
+        country: 'Bahrain',
+        team: 'Pulse',
+        weekly: 227,
+        monthly: 775,
+        allTime: 2505,
+        trend: 'up',
+        level: 20,
+        wins: 54,
+        questsCompleted: 28,
+        title: 'Momentum Master',
+        favoriteMode: 'Endurance Queue',
+        bio: 'Thrives in long runs and punishes weak lobbies with brutal efficiency.',
+        badges: ['Momentum', 'Top Finisher', 'Pulse']
+      },
+      {
+        id: 10,
+        name: 'Adam Fares',
+        country: 'Egypt',
+        team: 'Alpha',
+        weekly: 155,
+        monthly: 560,
+        allTime: 1840,
+        trend: 'down',
+        level: 13,
+        wins: 21,
+        questsCompleted: 11,
+        title: 'Rising Rookie',
+        favoriteMode: 'Starter Cup',
+        bio: 'Still early in the grind, but the foundation is there.',
+        badges: ['Rookie', 'Potential', 'Alpha']
+      }
     ];
 
-    let state = {
-      mode: 'allTime',
-      search: '',
-      team: 'all',
-      sort: 'score'
+    const quests = [ // مصفوفة المهمات/الكويستات
+      {
+        id: 1, // معرف الكويست
+        title: 'Win 3 Matches', // اسم الكويست
+        description: 'Complete three ranked matches to earn a quick reward boost.', // وصف
+        reward: '+120 XP', // المكافأة
+        progress: 2, // التقدم الحالي
+        goal: 3, // الهدف المطلوب
+        rarity: 'Daily' // نوع/ندرة الكويست
+      },
+      {
+        id: 2,
+        title: 'Score 700 Points',
+        description: 'Accumulate 700 total leaderboard points across your current mode.',
+        reward: '+250 Coins',
+        progress: 560,
+        goal: 700,
+        rarity: 'Epic'
+      },
+      {
+        id: 3,
+        title: 'Stay Top 5',
+        description: 'Maintain a position inside the top five players for the active ranking mode.',
+        reward: 'Profile Badge',
+        progress: 1,
+        goal: 1,
+        rarity: 'Elite'
+      },
+      {
+        id: 4,
+        title: 'Complete 5 Quests',
+        description: 'Finish five quests to unlock a seasonal reward chest.',
+        reward: 'Rare Chest',
+        progress: 3,
+        goal: 5,
+        rarity: 'Seasonal'
+      }
+    ];
+
+    let state = { // كائن الحالة الحالي للواجهة
+      mode: 'allTime', // الوضع الحالي: allTime / monthly / weekly
+      search: '', // قيمة البحث الحالية
+      team: 'all', // الفريق المختار حاليًا
+      sort: 'score' // نوع الترتيب الحالي
     };
 
-    const leaderboardBody = document.getElementById('leaderboardBody');
-    const topThree = document.getElementById('topThree');
-    const searchInput = document.getElementById('searchInput');
-    const teamFilter = document.getElementById('teamFilter');
-    const activeModeLabel = document.getElementById('activeModeLabel');
-    const lastUpdated = document.getElementById('lastUpdated');
+    const leaderboardBody = document.getElementById('leaderboardBody'); // مرجع لـ tbody الخاص بالجدول
+    const topThree = document.getElementById('topThree'); // مرجع لمكان عرض أول 3
+    const searchInput = document.getElementById('searchInput'); // مرجع لحقل البحث
+    const teamFilter = document.getElementById('teamFilter'); // مرجع لفلتر الفريق
+    const activeModeLabel = document.getElementById('activeModeLabel'); // مرجع لشارة الوضع الحالي
+    const lastUpdated = document.getElementById('lastUpdated'); // مرجع لنص آخر تحديث
+    const questsList = document.getElementById('questsList'); // مرجع لقائمة الكويستات
+    const profilesGrid = document.getElementById('profilesGrid'); // مرجع لشبكة البروفايلات
+    const profileModal = document.getElementById('profileModal'); // مرجع للمودال
+    const modalBody = document.getElementById('modalBody'); // مرجع لمحتوى المودال
 
-    function initials(name) {
-      return name
-        .split(' ')
-        .map(part => part[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
+    function initials(name) { // دالة ترجع أول حرفين من اسم اللاعب
+      return name // ترجع النتيجة النهائية
+        .split(' ') // تقسيم الاسم إلى كلمات
+        .map(part => part[0]) // أخذ أول حرف من كل كلمة
+        .slice(0, 2) // أخذ أول حرفين فقط
+        .join('') // دمجهم في نص واحد
+        .toUpperCase(); // تحويلهم لحروف كبيرة
     }
 
-    function formatMode(mode) {
-      if (mode === 'allTime') return 'All Time';
-      if (mode === 'monthly') return 'Monthly';
-      return 'Weekly';
+    function formatMode(mode) { // دالة لتحويل قيمة المود إلى نص مفهوم
+      if (mode === 'allTime') return 'All Time'; // لو allTime رجع النص ده
+      if (mode === 'monthly') return 'Monthly'; // لو monthly رجع النص ده
+      return 'Weekly'; // غير كده رجع Weekly
     }
 
-    function getSortedPlayers() {
-      let list = [...players];
+    function getSortedPlayers() { // دالة ترجع اللاعبين بعد الفلترة والترتيب
+      let list = [...players]; // ننسخ المصفوفة الأصلية عشان ما نغيرهاش
 
-      if (state.search.trim()) {
-        const q = state.search.toLowerCase();
-        list = list.filter(player =>
-          player.name.toLowerCase().includes(q) ||
-          player.team.toLowerCase().includes(q) ||
-          player.country.toLowerCase().includes(q)
+      if (state.search.trim()) { // لو في نص داخل البحث
+        const q = state.search.toLowerCase(); // نحوله لحروف صغيرة
+        list = list.filter(player => // فلترة اللاعبين
+          player.name.toLowerCase().includes(q) || // لو الاسم يحتوي كلمة البحث
+          player.team.toLowerCase().includes(q) || // أو الفريق يحتوي كلمة البحث
+          player.country.toLowerCase().includes(q) // أو الدولة تحتوي كلمة البحث
         );
       }
 
-      if (state.team !== 'all') {
-        list = list.filter(player => player.team === state.team);
+      if (state.team !== 'all') { // لو المستخدم اختار فريق معين
+        list = list.filter(player => player.team === state.team); // فلترة حسب الفريق
       }
 
-      if (state.sort === 'name') {
-        list.sort((a, b) => a.name.localeCompare(b.name));
-      } else {
-        list.sort((a, b) => b[state.mode] - a[state.mode]);
+      if (state.sort === 'name') { // لو الترتيب بالاسم
+        list.sort((a, b) => a.name.localeCompare(b.name)); // رتب أبجديًا
+      } else { // غير كده
+        list.sort((a, b) => b[state.mode] - a[state.mode]); // رتب تنازليًا حسب السكور للوضع الحالي
       }
 
-      return list;
+      return list; // رجع القائمة النهائية
     }
 
-    function getRankedPlayers() {
-      const base = [...players].sort((a, b) => b[state.mode] - a[state.mode]);
-      return base.map((player, index) => ({ ...player, rank: index + 1 }));
+    function getRankedPlayers() { // دالة تحسب الرتب الحقيقية بغض النظر عن البحث والفلترة
+      const base = [...players].sort((a, b) => b[state.mode] - a[state.mode]); // ترتيب كل اللاعبين حسب الوضع الحالي
+      return base.map((player, index) => ({ ...player, rank: index + 1 })); // إضافة خاصية rank لكل لاعب
     }
 
-    function renderStats() {
-      const ranked = getRankedPlayers();
-      const sorted = [...ranked].sort((a, b) => b[state.mode] - a[state.mode]);
-      const values = sorted.map(player => player[state.mode]);
-      const topScore = values[0] || 0;
-      const avg = values.length ? Math.round(values.reduce((sum, n) => sum + n, 0) / values.length) : 0;
-      const currentUser = ranked.find(player => player.id === currentUserId);
-
-      document.getElementById('statPlayers').textContent = players.length;
-      document.getElementById('statTopScore').textContent = topScore;
-      document.getElementById('statAvgScore').textContent = avg;
-      document.getElementById('statMyRank').textContent = currentUser ? `#${currentUser.rank}` : '--';
-      activeModeLabel.textContent = `Mode: ${formatMode(state.mode)}`;
-      lastUpdated.textContent = `Updated: ${new Date().toLocaleString()}`;
+    function getTopThreePlayers() { // دالة ترجع أول 3 لاعبين
+      return [...players] // نسخ المصفوفة
+        .sort((a, b) => b[state.mode] - a[state.mode]) // ترتيب حسب السكور
+        .slice(0, 3); // أخذ أول ثلاثة فقط
     }
 
-    function renderTopThree() {
-      const ranked = [...players]
-        .sort((a, b) => b[state.mode] - a[state.mode])
-        .slice(0, 3);
+    function renderStats() { // دالة عرض الإحصائيات العلوية
+      const ranked = getRankedPlayers(); // جلب اللاعبين مع الرتب
+      const sorted = [...ranked].sort((a, b) => b[state.mode] - a[state.mode]); // ترتيبهم تنازليًا
+      const values = sorted.map(player => player[state.mode]); // استخراج قيم السكور فقط
+      const topScore = values[0] || 0; // أعلى سكور أو صفر لو مفيش
+      const avg = values.length ? Math.round(values.reduce((sum, n) => sum + n, 0) / values.length) : 0; // حساب المتوسط
+      const currentUser = ranked.find(player => player.id === currentUserId); // إيجاد المستخدم الحالي
 
-      const orderClasses = ['first', 'second', 'third'];
-      const medals = ['👑', '🥈', '🥉'];
+      document.getElementById('statPlayers').textContent = players.length; // عرض عدد اللاعبين
+      document.getElementById('statTopScore').textContent = topScore; // عرض أعلى سكور
+      document.getElementById('statAvgScore').textContent = avg; // عرض المتوسط
+      document.getElementById('statMyRank').textContent = currentUser ? `#${currentUser.rank}` : '--'; // عرض ترتيب المستخدم أو --
+      activeModeLabel.textContent = `Mode: ${formatMode(state.mode)}`; // تحديث اسم الوضع الحالي
+      lastUpdated.textContent = `Updated: ${new Date().toLocaleString()}`; // تحديث وقت آخر تحديث
+    }
 
-      const arranged = ranked.length === 3 ? [ranked[1], ranked[0], ranked[2]] : ranked;
-      const arrangedClasses = ranked.length === 3 ? ['second', 'first', 'third'] : orderClasses;
-      const arrangedMedals = ranked.length === 3 ? ['🥈', '👑', '🥉'] : medals;
+    function renderTopThree() { // دالة عرض أول 3 لاعبين على شكل بوديوم
+      const ranked = getTopThreePlayers(); // جلب أول 3 لاعبين
 
-      topThree.innerHTML = arranged.map((player, index) => `
-        <div class="podium-item ${arrangedClasses[index]}">
+      const arranged = ranked.length === 3 ? [ranked[1], ranked[0], ranked[2]] : ranked; // ترتيب العرض بحيث الثاني - الأول - الثالث
+      const arrangedClasses = ranked.length === 3 ? ['second', 'first', 'third'] : ['first', 'second', 'third']; // الكلاسات الخاصة بالمراكز
+      const arrangedMedals = ranked.length === 3 ? ['🥈', '👑', '🥉'] : ['👑', '🥈', '🥉']; // الأيقونات الخاصة بالمراكز
+
+      topThree.innerHTML = arranged.map((player, index) => ` 
+        <div class="podium-item ${arrangedClasses[index]}" data-player-id="${player.id}">
           <div class="medal">${arrangedMedals[index]}</div>
           <div class="avatar">${initials(player.name)}</div>
           <div class="name">${player.name}</div>
           <div class="meta">${player.country} • ${player.team}</div>
           <div class="score">${player[state.mode]}</div>
         </div>
-      `).join('');
+      `).join(''); // توليد HTML للكروت ثم عرضه
     }
 
-    function renderTable() {
-      const filtered = getSortedPlayers();
-      const actualRanks = getRankedPlayers();
+    function renderTable() { // دالة عرض الجدول الرئيسي
+      const filtered = getSortedPlayers(); // جلب اللاعبين بعد البحث/الفلترة/الترتيب
+      const actualRanks = getRankedPlayers(); // جلب الرتب الحقيقية
 
-      leaderboardBody.innerHTML = filtered.map(player => {
-        const realRank = actualRanks.find(p => p.id === player.id)?.rank ?? '-';
-        const isCurrentUser = player.id === currentUserId;
-        const trendSymbol = player.trend === 'up' ? '▲ Rising' : '▼ Falling';
+      leaderboardBody.innerHTML = filtered.map(player => { // إنشاء صف لكل لاعب
+        const realRank = actualRanks.find(p => p.id === player.id)?.rank ?? '-'; // إيجاد الترتيب الحقيقي
+        const isCurrentUser = player.id === currentUserId; // هل ده المستخدم الحالي؟
+        const trendSymbol = player.trend === 'up' ? '▲ Rising' : '▼ Falling'; // تحديد نص الاتجاه
 
         return `
           <tr class="${isCurrentUser ? 'current-user' : ''}">
@@ -643,72 +1272,226 @@
             <td><span class="trend ${player.trend}">${trendSymbol}</span></td>
             <td>${player.team}</td>
           </tr>
-        `;
-      }).join('');
+        `; // HTML الخاص بالصف
+      }).join(''); // دمج الصفوف وعرضها
     }
 
-    function populateTeams() {
-      const teams = [...new Set(players.map(player => player.team))].sort();
-      teams.forEach(team => {
-        const option = document.createElement('option');
-        option.value = team;
-        option.textContent = team;
-        teamFilter.appendChild(option);
+    function renderQuests() { // دالة عرض قائمة الكويستات
+      questsList.innerHTML = quests.map(quest => { // لف على كل كويست
+        const percent = Math.min((quest.progress / quest.goal) * 100, 100); // حساب نسبة التقدم بحد أقصى 100%
+        const completed = quest.progress >= quest.goal; // التحقق هل الكويست مكتمل؟
+
+        return `
+          <div class="quest-item">
+            <div class="quest-top">
+              <div>
+                <div class="quest-title">${quest.title}</div>
+                <div class="quest-desc">${quest.description}</div>
+              </div>
+              <div class="quest-badge">${quest.rarity}</div>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-bar" style="width: ${percent}%"></div>
+            </div>
+
+            <div class="quest-bottom">
+              <div class="quest-meta">
+                Progress: ${quest.progress}/${quest.goal} • Reward: ${quest.reward}
+              </div>
+              <button class="claim-btn" ${completed ? '' : 'disabled'}>
+                ${completed ? 'Claim Reward' : 'Locked'}
+              </button>
+            </div>
+          </div>
+        `; // HTML الخاص بالكويست
+      }).join(''); // دمج العناصر وعرضها
+    }
+
+    function renderProfiles() { // دالة عرض بطاقات بروفايلات أول 3
+      const ranked = getTopThreePlayers(); // جلب أول 3 لاعبين
+
+      profilesGrid.innerHTML = ranked.map((player, index) => { // لف على اللاعبين
+        const rankClasses = ['first', 'second', 'third']; // الكلاسات الخاصة بالمراكز
+        const medals = ['👑 #1', '🥈 #2', '🥉 #3']; // النصوص الخاصة بالمراكز
+
+        return `
+          <div class="profile-card ${rankClasses[index]}">
+            <div class="profile-header">
+              <div class="profile-avatar">${initials(player.name)}</div>
+              <div class="profile-title">
+                <h3>${player.name}</h3>
+                <p>${player.country} • ${player.team}</p>
+              </div>
+            </div>
+
+            <div class="profile-rank">${medals[index]} • ${player.title}</div>
+
+            <div class="profile-stats">
+              <div class="mini-stat">
+                <div class="mini-stat-label">${formatMode(state.mode)} Score</div>
+                <div class="mini-stat-value">${player[state.mode]}</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-label">Level</div>
+                <div class="mini-stat-value">${player.level}</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-label">Wins</div>
+                <div class="mini-stat-value">${player.wins}</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-label">Quests Done</div>
+                <div class="mini-stat-value">${player.questsCompleted}</div>
+              </div>
+            </div>
+
+            <div class="profile-bio">${player.bio}</div>
+
+            <div class="tag-row">
+              ${player.badges.map(badge => `<span class="tag">${badge}</span>`).join('')}
+            </div>
+
+            <button class="profile-btn" data-profile-id="${player.id}">View Full Profile</button>
+          </div>
+        `; // HTML الخاص ببطاقة البروفايل
+      }).join(''); // دمج الكروت وعرضها
+    }
+
+    function openProfileModal(playerId) { // دالة فتح المودال حسب ID اللاعب
+      const ranked = getRankedPlayers(); // جلب الرتب الحقيقية
+      const player = ranked.find(p => p.id === Number(playerId)); // البحث عن اللاعب المطلوب
+      if (!player) return; // لو اللاعب مش موجود اخرج من الدالة
+
+      modalBody.innerHTML = ` 
+        <div class="modal-top">
+          <div class="modal-avatar">${initials(player.name)}</div>
+          <div class="modal-title">
+            <h2>${player.name}</h2>
+            <p>${player.country} • ${player.team} • Rank #${player.rank}</p>
+          </div>
+        </div>
+
+        <div class="modal-grid">
+          <div class="modal-box">
+            <span>${formatMode(state.mode)} Score</span>
+            <strong>${player[state.mode]}</strong>
+          </div>
+          <div class="modal-box">
+            <span>Level</span>
+            <strong>${player.level}</strong>
+          </div>
+          <div class="modal-box">
+            <span>Wins</span>
+            <strong>${player.wins}</strong>
+          </div>
+          <div class="modal-box">
+            <span>Completed Quests</span>
+            <strong>${player.questsCompleted}</strong>
+          </div>
+          <div class="modal-box">
+            <span>Favorite Mode</span>
+            <strong>${player.favoriteMode}</strong>
+          </div>
+          <div class="modal-box">
+            <span>Trend</span>
+            <strong>${player.trend === 'up' ? 'Rising' : 'Falling'}</strong>
+          </div>
+        </div>
+
+        <div class="modal-bio">${player.bio}</div>
+
+        <div class="tag-row">
+          <span class="tag">${player.title}</span>
+          ${player.badges.map(badge => `<span class="tag">${badge}</span>`).join('')}
+        </div>
+      `; // إنشاء محتوى المودال
+
+      profileModal.classList.add('open'); // إظهار المودال
+    }
+
+    function populateTeams() { // دالة ملء قائمة الفرق داخل الـ select
+      const teams = [...new Set(players.map(player => player.team))].sort(); // استخراج الفرق بدون تكرار وترتيبها
+      teams.forEach(team => { // لف على كل فريق
+        const option = document.createElement('option'); // إنشاء option جديد
+        option.value = team; // قيمة الـ option
+        option.textContent = team; // النص الظاهر
+        teamFilter.appendChild(option); // إضافته للقائمة
       });
     }
 
-    function render() {
-      renderStats();
-      renderTopThree();
-      renderTable();
+    function render() { // دالة رئيسية لإعادة رسم الواجهة كلها
+      renderStats(); // عرض الإحصائيات
+      renderTopThree(); // عرض أول 3
+      renderQuests(); // عرض الكويستات
+      renderTable(); // عرض الجدول
+      renderProfiles(); // عرض البروفايلات
     }
 
-    document.getElementById('modeTabs').addEventListener('click', event => {
-      const btn = event.target.closest('.tab');
-      if (!btn) return;
+    document.getElementById('modeTabs').addEventListener('click', event => { // الاستماع للضغط على التابات
+      const btn = event.target.closest('.tab'); // تحديد الزر المضغوط
+      if (!btn) return; // لو الضغط مش على تاب اخرج
 
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      btn.classList.add('active');
-      state.mode = btn.dataset.mode;
-      if (state.sort === 'score') render();
-      else {
-        renderStats();
-        renderTopThree();
-        renderTable();
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active')); // إزالة active من كل التابات
+      btn.classList.add('active'); // إضافة active للتاب الحالي
+      state.mode = btn.dataset.mode; // تحديث الوضع الحالي من data-mode
+      render(); // إعادة الرسم بالكامل
+    });
+
+    searchInput.addEventListener('input', e => { // الاستماع للكتابة في البحث
+      state.search = e.target.value; // تحديث قيمة البحث في الحالة
+      renderTable(); // تحديث الجدول فقط
+    });
+
+    teamFilter.addEventListener('change', e => { // الاستماع لتغيير الفريق
+      state.team = e.target.value; // تحديث الفريق الحالي
+      renderTable(); // تحديث الجدول فقط
+    });
+
+    document.getElementById('sortScoreBtn').addEventListener('click', () => { // عند الضغط على ترتيب السكور
+      state.sort = 'score'; // اجعل الترتيب حسب السكور
+      renderTable(); // تحديث الجدول فقط
+    });
+
+    document.getElementById('sortNameBtn').addEventListener('click', () => { // عند الضغط على ترتيب الاسم
+      state.sort = 'name'; // اجعل الترتيب حسب الاسم
+      renderTable(); // تحديث الجدول فقط
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => { // عند الضغط على إعادة التعيين
+      state = { mode: 'allTime', search: '', team: 'all', sort: 'score' }; // إعادة الحالة الافتراضية
+      searchInput.value = ''; // تفريغ البحث
+      teamFilter.value = 'all'; // إعادة اختيار كل الفرق
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active')); // إزالة active من الكل
+      document.querySelector('[data-mode="allTime"]').classList.add('active'); // تفعيل تاب All Time
+      render(); // إعادة رسم كل شيء
+    });
+
+    topThree.addEventListener('click', event => { // الاستماع للضغط على عنصر في البوديوم
+      const card = event.target.closest('.podium-item'); // تحديد الكارت المضغوط
+      if (!card) return; // لو مش كارت اخرج
+      openProfileModal(card.dataset.playerId); // افتح المودال للاعب ده
+    });
+
+    profilesGrid.addEventListener('click', event => { // الاستماع للضغط على زر داخل كروت البروفايل
+      const btn = event.target.closest('.profile-btn'); // تحديد الزر
+      if (!btn) return; // لو مفيش زر اخرج
+      openProfileModal(btn.dataset.profileId); // افتح المودال حسب اللاعب
+    });
+
+    document.getElementById('closeModal').addEventListener('click', () => { // عند الضغط على زر الغلق
+      profileModal.classList.remove('open'); // اقفل المودال
+    });
+
+    profileModal.addEventListener('click', event => { // لو المستخدم ضغط خارج صندوق المودال
+      if (event.target === profileModal) { // التأكد إن الضغط على الخلفية نفسها
+        profileModal.classList.remove('open'); // اقفل المودال
       }
     });
 
-    searchInput.addEventListener('input', e => {
-      state.search = e.target.value;
-      renderTable();
-    });
+    populateTeams(); // ملء قائمة الفرق أول ما الصفحة تفتح
+    render(); // عرض كل المحتوى أول مرة
 
-    teamFilter.addEventListener('change', e => {
-      state.team = e.target.value;
-      renderTable();
-    });
-
-    document.getElementById('sortScoreBtn').addEventListener('click', () => {
-      state.sort = 'score';
-      renderTable();
-    });
-
-    document.getElementById('sortNameBtn').addEventListener('click', () => {
-      state.sort = 'name';
-      renderTable();
-    });
-
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      state = { mode: 'allTime', search: '', team: 'all', sort: 'score' };
-      searchInput.value = '';
-      teamFilter.value = 'all';
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.querySelector('[data-mode="allTime"]').classList.add('active');
-      render();
-    });
-
-    populateTeams();
-    render();
-  </script>
-</body>
-</html>
+  </script> <!-- نهاية JavaScript -->
+</body> <!-- نهاية جسم الصفحة -->
+</html> <!-- نهاية الملف -->
