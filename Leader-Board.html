@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playing Leaderboard</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(17, 24, 39, 0.8);
+      --panel-2: rgba(30, 41, 59, 0.75);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --line: rgba(148, 163, 184, 0.18);
+      --gold: #fbbf24;
+      --silver: #cbd5e1;
+      --bronze: #d97706;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 24%),
+        radial-gradient(circle at top right, rgba(251, 191, 36, 0.10), transparent 20%),
+        linear-gradient(180deg, #0b1020 0%, #111827 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    .container {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .hero,
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 20px;
+    }
+
+    .headline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.7rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .title-wrap p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      max-width: 60ch;
+    }
+
+    .pill-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .pill,
+    .tab,
+    .btn,
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+    }
+
+    .pill,
+    .chip {
+      padding: 10px 14px;
+      font-size: 0.92rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat-box {
+      border-radius: var(--radius-lg);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      padding: 16px;
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr 2fr;
+      gap: 22px;
+    }
+
+    .card {
+      border-radius: var(--radius-xl);
+      padding: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2,
+    .card-header h3 {
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .top-three {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      align-items: end;
+    }
+
+    .podium-item {
+      border-radius: 20px;
+      padding: 18px 14px;
+      text-align: center;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .podium-item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.14;
+      pointer-events: none;
+    }
+
+    .podium-item.first::before { background: linear-gradient(180deg, var(--gold), transparent); }
+    .podium-item.second::before { background: linear-gradient(180deg, var(--silver), transparent); }
+    .podium-item.third::before { background: linear-gradient(180deg, var(--bronze), transparent); }
+
+    .podium-item.first { min-height: 290px; }
+    .podium-item.second { min-height: 248px; }
+    .podium-item.third { min-height: 225px; }
+
+    .medal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-size: 1.15rem;
+      margin-bottom: 12px;
+      font-weight: 800;
+    }
+
+    .first .medal { background: rgba(251, 191, 36, 0.18); color: var(--gold); }
+    .second .medal { background: rgba(203, 213, 225, 0.18); color: var(--silver); }
+    .third .medal { background: rgba(217, 119, 6, 0.18); color: #fdba74; }
+
+    .avatar {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #fff;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      border: 3px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+
+    .name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+
+    .score {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .search-row,
+    .filter-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .input,
+    .select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      outline: none;
+      min-height: 46px;
+    }
+
+    .input {
+      flex: 1 1 260px;
+    }
+
+    .select {
+      min-width: 160px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab,
+    .btn {
+      cursor: pointer;
+      padding: 10px 14px;
+      transition: 0.2s ease;
+      font-weight: 600;
+    }
+
+    .tab.active,
+    .btn:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .table-wrap {
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: rgba(255,255,255,0.04);
+    }
+
+    th, td {
+      padding: 16px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    tbody tr {
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    tbody tr.current-user {
+      background: rgba(34, 197, 94, 0.10);
+      outline: 1px solid rgba(34, 197, 94, 0.22);
+    }
+
+    .rank-badge {
+      min-width: 44px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      font-weight: 700;
+    }
+
+    .player-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mini-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+      flex-shrink: 0;
+    }
+
+    .player-info strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .player-info span {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .trend {
+      font-weight: 700;
+    }
+
+    .trend.up { color: var(--accent); }
+    .trend.down { color: var(--danger); }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .top-three {
+        grid-template-columns: 1fr;
+      }
+
+      .podium-item.first,
+      .podium-item.second,
+      .podium-item.third {
+        min-height: unset;
+      }
+
+      th:nth-child(4), td:nth-child(4),
+      th:nth-child(5), td:nth-child(5) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div>
+        <div class="headline">
+          <div class="title-wrap">
+            <h1>Leaderboard Dashboard</h1>
+            <p>
+              Clean, modern, and actually usable. This version includes a podium, filters,
+              search, current-user highlight, and dynamic ranking logic.
+            </p>
+          </div>
+          <div class="chip" id="lastUpdated">Updated: --</div>
+        </div>
+
+        <div class="pill-group">
+          <div class="pill">Live Ranking</div>
+          <div class="pill">Search Players</div>
+          <div class="pill">Week / Month / All Time</div>
+          <div class="pill">Top 3 Podium</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-label">Total Players</div>
+          <div class="stat-value" id="statPlayers">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Highest Score</div>
+          <div class="stat-value" id="statTopScore">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Average Score</div>
+          <div class="stat-value" id="statAvgScore">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Current User Rank</div>
+          <div class="stat-value" id="statMyRank">--</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="card">
+        <div class="card-header">
+          <h2>Top 3 Players</h2>
+          <div class="chip" id="activeModeLabel">Mode: All Time</div>
+        </div>
+        <div class="top-three" id="topThree"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Rankings</h2>
+          <div class="tabs" id="modeTabs">
+            <button class="tab active" data-mode="allTime">All Time</button>
+            <button class="tab" data-mode="monthly">Monthly</button>
+            <button class="tab" data-mode="weekly">Weekly</button>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="search-row">
+            <input id="searchInput" class="input" type="text" placeholder="Search by name, team, or country..." />
+            <select id="teamFilter" class="select">
+              <option value="all">All Teams</option>
+            </select>
+          </div>
+          <div class="filter-row">
+            <button class="btn" id="sortScoreBtn">Sort by Score ↓</button>
+            <button class="btn" id="sortNameBtn">Sort by Name A-Z</button>
+            <button class="btn" id="resetBtn">Reset Filters</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th>Score</th>
+                <th>Trend</th>
+                <th>Team</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+          </table>
+        </div>
+        <div class="footer-note">Tip: the current user is highlighted so they do not need to play Where’s Waldo with their rank.</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const currentUserId = 4;
+
+    const players = [
+      { id: 1, name: 'Lina Hassan', country: 'Egypt', team: 'Alpha', weekly: 220, monthly: 740, allTime: 2480, trend: 'up' },
+      { id: 2, name: 'Omar Tarek', country: 'Jordan', team: 'Nova', weekly: 205, monthly: 790, allTime: 2540, trend: 'down' },
+      { id: 3, name: 'Sara Ali', country: 'Saudi Arabia', team: 'Alpha', weekly: 240, monthly: 860, allTime: 2715, trend: 'up' },
+      { id: 4, name: 'You', country: 'Egypt', team: 'Nova', weekly: 198, monthly: 705, allTime: 2300, trend: 'up' },
+      { id: 5, name: 'Mazen Adel', country: 'UAE', team: 'Vertex', weekly: 190, monthly: 640, allTime: 2190, trend: 'down' },
+      { id: 6, name: 'Nour Samir', country: 'Egypt', team: 'Vertex', weekly: 176, monthly: 615, allTime: 2080, trend: 'up' },
+      { id: 7, name: 'Yousef Karim', country: 'Kuwait', team: 'Nova', weekly: 214, monthly: 720, allTime: 2410, trend: 'up' },
+      { id: 8, name: 'Mariam Essam', country: 'Qatar', team: 'Pulse', weekly: 169, monthly: 590, allTime: 1995, trend: 'down' },
+      { id: 9, name: 'Huda Nasser', country: 'Bahrain', team: 'Pulse', weekly: 227, monthly: 775, allTime: 2505, trend: 'up' },
+      { id: 10, name: 'Adam Fares', country: 'Egypt', team: 'Alpha', weekly: 155, monthly: 560, allTime: 1840, trend: 'down' }
+    ];
+
+    let state = {
+      mode: 'allTime',
+      search: '',
+      team: 'all',
+      sort: 'score'
+    };
+
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    const topThree = document.getElementById('topThree');
+    const searchInput = document.getElementById('searchInput');
+    const teamFilter = document.getElementById('teamFilter');
+    const activeModeLabel = document.getElementById('activeModeLabel');
+    const lastUpdated = document.getElementById('lastUpdated');
+
+    function initials(name) {
+      return name
+        .split(' ')
+        .map(part => part[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+    }
+
+    function formatMode(mode) {
+      if (mode === 'allTime') return 'All Time';
+      if (mode === 'monthly') return 'Monthly';
+      return 'Weekly';
+    }
+
+    function getSortedPlayers() {
+      let list = [...players];
+
+      if (state.search.trim()) {
+        const q = state.search.toLowerCase();
+        list = list.filter(player =>
+          player.name.toLowerCase().includes(q) ||
+          player.team.toLowerCase().includes(q) ||
+          player.country.toLowerCase().includes(q)
+        );
+      }
+
+      if (state.team !== 'all') {
+        list = list.filter(player => player.team === state.team);
+      }
+
+      if (state.sort === 'name') {
+        list.sort((a, b) => a.name.localeCompare(b.name));
+      } else {
+        list.sort((a, b) => b[state.mode] - a[state.mode]);
+      }
+
+      return list;
+    }
+
+    function getRankedPlayers() {
+      const base = [...players].sort((a, b) => b[state.mode] - a[state.mode]);
+      return base.map((player, index) => ({ ...player, rank: index + 1 }));
+    }
+
+    function renderStats() {
+      const ranked = getRankedPlayers();
+      const sorted = [...ranked].sort((a, b) => b[state.mode] - a[state.mode]);
+      const values = sorted.map(player => player[state.mode]);
+      const topScore = values[0] || 0;
+      const avg = values.length ? Math.round(values.reduce((sum, n) => sum + n, 0) / values.length) : 0;
+      const currentUser = ranked.find(player => player.id === currentUserId);
+
+      document.getElementById('statPlayers').textContent = players.length;
+      document.getElementById('statTopScore').textContent = topScore;
+      document.getElementById('statAvgScore').textContent = avg;
+      document.getElementById('statMyRank').textContent = currentUser ? `#${currentUser.rank}` : '--';
+      activeModeLabel.textContent = `Mode: ${formatMode(state.mode)}`;
+      lastUpdated.textContent = `Updated: ${new Date().toLocaleString()}`;
+    }
+
+    function renderTopThree() {
+      const ranked = [...players]
+        .sort((a, b) => b[state.mode] - a[state.mode])
+        .slice(0, 3);
+
+      const orderClasses = ['first', 'second', 'third'];
+      const medals = ['👑', '🥈', '🥉'];
+
+      const arranged = ranked.length === 3 ? [ranked[1], ranked[0], ranked[2]] : ranked;
+      const arrangedClasses = ranked.length === 3 ? ['second', 'first', 'third'] : orderClasses;
+      const arrangedMedals = ranked.length === 3 ? ['🥈', '👑', '🥉'] : medals;
+
+      topThree.innerHTML = arranged.map((player, index) => `
+        <div class="podium-item ${arrangedClasses[index]}">
+          <div class="medal">${arrangedMedals[index]}</div>
+          <div class="avatar">${initials(player.name)}</div>
+          <div class="name">${player.name}</div>
+          <div class="meta">${player.country} • ${player.team}</div>
+          <div class="score">${player[state.mode]}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTable() {
+      const filtered = getSortedPlayers();
+      const actualRanks = getRankedPlayers();
+
+      leaderboardBody.innerHTML = filtered.map(player => {
+        const realRank = actualRanks.find(p => p.id === player.id)?.rank ?? '-';
+        const isCurrentUser = player.id === currentUserId;
+        const trendSymbol = player.trend === 'up' ? '▲ Rising' : '▼ Falling';
+
+        return `
+          <tr class="${isCurrentUser ? 'current-user' : ''}">
+            <td><span class="rank-badge">#${realRank}</span></td>
+            <td>
+              <div class="player-cell">
+                <div class="mini-avatar">${initials(player.name)}</div>
+                <div class="player-info">
+                  <strong>${player.name}</strong>
+                  <span>${player.country}</span>
+                </div>
+              </div>
+            </td>
+            <td><strong>${player[state.mode]}</strong></td>
+            <td><span class="trend ${player.trend}">${trendSymbol}</span></td>
+            <td>${player.team}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function populateTeams() {
+      const teams = [...new Set(players.map(player => player.team))].sort();
+      teams.forEach(team => {
+        const option = document.createElement('option');
+        option.value = team;
+        option.textContent = team;
+        teamFilter.appendChild(option);
+      });
+    }
+
+    function render() {
+      renderStats();
+      renderTopThree();
+      renderTable();
+    }
+
+    document.getElementById('modeTabs').addEventListener('click', event => {
+      const btn = event.target.closest('.tab');
+      if (!btn) return;
+
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+      if (state.sort === 'score') render();
+      else {
+        renderStats();
+        renderTopThree();
+        renderTable();
+      }
+    });
+
+    searchInput.addEventListener('input', e => {
+      state.search = e.target.value;
+      renderTable();
+    });
+
+    teamFilter.addEventListener('change', e => {
+      state.team = e.target.value;
+      renderTable();
+    });
+
+    document.getElementById('sortScoreBtn').addEventListener('click', () => {
+      state.sort = 'score';
+      renderTable();
+    });
+
+    document.getElementById('sortNameBtn').addEventListener('click', () => {
+      state.sort = 'name';
+      renderTable();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      state = { mode: 'allTime', search: '', team: 'all', sort: 'score' };
+      searchInput.value = '';
+      teamFilter.value = 'all';
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector('[data-mode="allTime"]').classList.add('active');
+      render();
+    });
+
+    populateTeams();
+    render();
+  </script>
+</body>
+</html>
