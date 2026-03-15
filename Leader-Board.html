@@ -1,1497 +1,1848 @@
-<!DOCTYPE html> <!-- بيحدد إن المستند HTML5 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infinity</title>
 
-<html lang="en"> <!-- بداية صفحة HTML وتحديد اللغة الإنجليزية -->
-<head> <!-- معلومات الصفحة اللي مش بتظهر مباشرة جوه المحتوى -->
-  <meta charset="UTF-8" /> <!-- بيدعم الأحرف المختلفة زي العربي والإنجليزي -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- بيخلي الصفحة Responsive على الموبايل -->
-  <title>Playing Leaderboard</title> <!-- عنوان الصفحة اللي بيظهر في التاب -->
-
-  <style> /* بداية CSS الخاص بتنسيق الصفحة */
-
-    :root { /* تعريف متغيرات CSS عشان نستخدمها في كل الصفحة بسهولة */
-      --bg: #0b1020; /* لون خلفية أساسي */
-      --panel: rgba(17, 24, 39, 0.8); /* لون البوكسات الأساسية بشفافية */
-      --panel-2: rgba(30, 41, 59, 0.75); /* لون ثانوي للبوكسات */
-      --panel-3: rgba(15, 23, 42, 0.88); /* لون ثالث مستخدم في المودال */
-      --text: #e5e7eb; /* لون النص الأساسي */
-      --muted: #94a3b8; /* لون النص الثانوي/الهادئ */
-      --line: rgba(148, 163, 184, 0.18); /* لون الحدود */
-      --gold: #fbbf24; /* لون ذهبي */
-      --silver: #cbd5e1; /* لون فضي */
-      --bronze: #d97706; /* لون برونزي */
-      --accent: #22c55e; /* لون أخضر للإشارات الإيجابية */
-      --danger: #ef4444; /* لون أحمر للإشارات السلبية */
-      --info: #38bdf8; /* لون أزرق معلوماتي */
-      --violet: #8b5cf6; /* لون بنفسجي */
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35); /* ظل جاهز للعناصر */
-      --radius-xl: 24px; /* نصف قطر كبير للحواف */
-      --radius-lg: 18px; /* نصف قطر متوسط كبير */
-      --radius-md: 14px; /* نصف قطر متوسط */
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    * { /* بيطبق على كل العناصر */
-      box-sizing: border-box; /* بيخلي الـ width والـ height يشملوا padding و border */
+    :root {
+      --bg: #020817;
+      --bg-2: #071226;
+      --sidebar: #081120;
+      --panel: rgba(10, 19, 40, 0.92);
+      --panel-2: rgba(14, 28, 56, 0.92);
+      --panel-3: rgba(18, 34, 64, 0.95);
+      --text: #eaf2ff;
+      --muted: #87a0c7;
+      --line: rgba(75, 139, 255, 0.18);
+      --line-2: rgba(76, 201, 255, 0.35);
+      --accent: #35b8ff;
+      --accent-2: #67d4ff;
+      --accent-soft: rgba(53, 184, 255, 0.15);
+      --success: #27d17f;
+      --danger: #ff5e73;
+      --warning: #ffcc33;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
     }
 
-    body { /* تنسيق جسم الصفحة */
-      margin: 0; /* إزالة الهوامش الافتراضية */
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; /* نوع الخط */
+    body.light-mode {
+      --bg: #eef5ff;
+      --bg-2: #dfeeff;
+      --sidebar: #f7fbff;
+      --panel: rgba(255, 255, 255, 0.95);
+      --panel-2: rgba(245, 250, 255, 0.96);
+      --panel-3: rgba(235, 245, 255, 0.98);
+      --text: #10203d;
+      --muted: #60779c;
+      --line: rgba(31, 108, 255, 0.14);
+      --line-2: rgba(31, 108, 255, 0.24);
+      --accent: #1890ff;
+      --accent-2: #0fb7ff;
+      --accent-soft: rgba(24, 144, 255, 0.11);
+      --success: #15b86a;
+      --danger: #e74e63;
+      --warning: #d7a300;
+      --shadow: 0 20px 45px rgba(20, 70, 140, 0.14);
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 24%), /* تأثير دائري أخضر أعلى اليسار */
-        radial-gradient(circle at top right, rgba(251, 191, 36, 0.10), transparent 20%), /* تأثير دائري ذهبي أعلى اليمين */
-        linear-gradient(180deg, #0b1020 0%, #111827 100%); /* خلفية متدرجة داكنة */
-      color: var(--text); /* لون النص الافتراضي */
-      min-height: 100vh; /* أقل ارتفاع = طول الشاشة بالكامل */
-      padding: 32px 16px; /* مسافة داخلية حول الصفحة */
-    }
-
-    .container { /* الحاوية الرئيسية */
-      width: min(1240px, 100%); /* أقصى عرض 1240px أو 100% حسب المتاح */
-      margin: 0 auto; /* توسيط العنصر */
-      display: grid; /* استخدام Grid layout */
-      gap: 22px; /* مسافة بين العناصر */
-    }
-
-    .hero,
-    .card { /* تنسيق مشترك بين الـ hero والبطاقات */
-      background: var(--panel); /* خلفية البوكس */
-      backdrop-filter: blur(16px); /* ضبابية للخلفية خلف العنصر */
-      border: 1px solid var(--line); /* حدود خفيفة */
-      box-shadow: var(--shadow); /* ظل */
-    }
-
-    .hero { /* جزء الهيدر الكبير فوق */
-      border-radius: var(--radius-xl); /* حواف دائرية كبيرة */
-      padding: 28px; /* مسافة داخلية */
-      display: grid; /* Grid */
-      grid-template-columns: 1.25fr 0.75fr; /* عمودين بنسب مختلفة */
-      gap: 20px; /* مسافة بين العمودين */
-    }
-
-    .headline { /* الحاوية اللي فيها العنوان والتحديث */
-      display: flex; /* Flexbox */
-      align-items: flex-start; /* محاذاة من فوق */
-      justify-content: space-between; /* توزيع بين الطرفين */
-      gap: 16px; /* مسافة */
-      flex-wrap: wrap; /* ينزل سطر جديد لو المساحة صغيرة */
-    }
-
-    .title-wrap h1 { /* تنسيق عنوان الصفحة الرئيسي */
-      margin: 0; /* إزالة المارجن الافتراضي */
-      font-size: clamp(1.8rem, 3vw, 2.7rem); /* حجم خط مرن حسب الشاشة */
-      line-height: 1.05; /* ارتفاع السطر */
-      letter-spacing: -0.03em; /* تقليل المسافة بين الحروف */
-    }
-
-    .title-wrap p { /* تنسيق وصف العنوان */
-      margin: 10px 0 0; /* مارجن علوي فقط */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.98rem; /* حجم الخط */
-      max-width: 60ch; /* أقصى عرض للنص */
-    }
-
-    .pill-group { /* حاوية الـ pills */
-      display: flex; /* ترتيب أفقي */
-      gap: 10px; /* مسافة بين العناصر */
-      flex-wrap: wrap; /* ينزل سطر جديد لو الشاشة ضيقة */
-      margin-top: 18px; /* مسافة فوق */
-    }
-
-    .pill,
-    .tab,
-    .btn,
-    .chip { /* تنسيق مشترك لعناصر كتير */
-      border: 1px solid var(--line); /* حدود */
-      border-radius: 999px; /* حواف دائرية جدًا */
-      background: rgba(255, 255, 255, 0.03); /* خلفية شفافة خفيفة */
-      color: var(--text); /* لون النص */
-    }
-
-    .pill,
-    .chip { /* تنسيق خاص للـ pill والـ chip */
-      padding: 10px 14px; /* padding داخلي */
-      font-size: 0.92rem; /* حجم النص */
-    }
-
-    .stats { /* شبكة الإحصائيات */
-      display: grid; /* Grid */
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* عمودين متساويين */
-      gap: 14px; /* مسافة */
-    }
-
-    .stat-box { /* كل صندوق إحصائية */
-      border-radius: var(--radius-lg); /* حواف دائرية */
-      background: var(--panel-2); /* خلفية */
-      border: 1px solid var(--line); /* حدود */
-      padding: 16px; /* padding */
-      min-height: 112px; /* أقل ارتفاع */
-      display: flex; /* Flex */
-      flex-direction: column; /* ترتيب رأسي */
-      justify-content: space-between; /* توزيع المحتوى فوق/تحت */
-    }
-
-    .stat-label { /* عنوان الإحصائية */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.85rem; /* حجم صغير */
-    }
-
-    .stat-value { /* قيمة الإحصائية */
-      font-size: 1.75rem; /* حجم كبير */
-      font-weight: 700; /* تخانة */
-      letter-spacing: -0.03em; /* تقليل المسافة بين الحروف */
-    }
-
-    .layout { /* تخطيط الجزء الأوسط */
-      display: grid; /* Grid */
-      grid-template-columns: 1.08fr 1.92fr; /* عمود أيسر أصغر وعمود أيمن أكبر */
-      gap: 22px; /* مسافة */
-      align-items: start; /* محاذاة من الأعلى */
-    }
-
-    .left-column { /* العمود الأيسر */
-      display: grid; /* Grid */
-      gap: 22px; /* مسافة بين الكروت */
-    }
-
-    .card { /* البطاقات العامة */
-      border-radius: var(--radius-xl); /* حواف */
-      padding: 20px; /* padding */
-    }
-
-    .card-header { /* هيدر أي بطاقة */
-      display: flex; /* Flex */
-      align-items: center; /* محاذاة عمودية */
-      justify-content: space-between; /* توزيع أفقي */
-      gap: 14px; /* مسافة */
-      margin-bottom: 18px; /* مسافة تحت */
-      flex-wrap: wrap; /* ينزل لو الشاشة ضيقة */
-    }
-
-    .card-header h2,
-    .card-header h3 { /* تنسيق عناوين البطاقات */
-      margin: 0; /* إزالة الهوامش */
-      letter-spacing: -0.02em; /* تقليل التباعد */
-    }
-
-    .top-three { /* شبكة أول 3 لاعبين */
-      display: grid; /* Grid */
-      grid-template-columns: repeat(3, 1fr); /* 3 أعمدة متساوية */
-      gap: 14px; /* مسافة */
-      align-items: end; /* محاذاة للأسفل عشان شكل البوديوم */
-    }
-
-    .podium-item { /* بطاقة لاعب في البوديوم */
-      border-radius: 20px; /* حواف */
-      padding: 18px 14px; /* padding */
-      text-align: center; /* توسيط النص */
-      border: 1px solid var(--line); /* حدود */
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); /* خلفية متدرجة خفيفة */
-      position: relative; /* عشان نستخدم ::before */
-      overflow: hidden; /* إخفاء أي جزء زائد */
-      cursor: pointer; /* شكل الماوس يبقى clickable */
-      transition: transform 0.2s ease, border-color 0.2s ease; /* أنيميشن ناعم */
-    }
-
-    .podium-item:hover { /* لما الماوس يقف على البطاقة */
-      transform: translateY(-4px); /* تتحرك لفوق شوية */
-      border-color: rgba(255,255,255,0.24); /* الحدود تبان أكتر */
-    }
-
-    .podium-item::before { /* طبقة تأثير لوني فوق البطاقة */
-      content: ""; /* لازم عشان pseudo-element يظهر */
-      position: absolute; /* تموضع مطلق */
-      inset: 0; /* يملأ العنصر بالكامل */
-      opacity: 0.14; /* شفافية */
-      pointer-events: none; /* مايعطلش الضغط */
-    }
-
-    .podium-item.first::before { background: linear-gradient(180deg, var(--gold), transparent); } /* تأثير للترتيب الأول */
-    .podium-item.second::before { background: linear-gradient(180deg, var(--silver), transparent); } /* تأثير للترتيب الثاني */
-    .podium-item.third::before { background: linear-gradient(180deg, var(--bronze), transparent); } /* تأثير للترتيب الثالث */
-
-    .podium-item.first { min-height: 290px; } /* ارتفاع الأول */
-    .podium-item.second { min-height: 248px; } /* ارتفاع الثاني */
-    .podium-item.third { min-height: 225px; } /* ارتفاع الثالث */
-
-    .medal { /* دائرة الميدالية */
-      display: inline-flex; /* Flex صغير */
-      align-items: center; /* توسيط عمودي */
-      justify-content: center; /* توسيط أفقي */
-      width: 42px; /* العرض */
-      height: 42px; /* الارتفاع */
-      border-radius: 50%; /* دائرة */
-      font-size: 1.15rem; /* حجم الأيقونة */
-      margin-bottom: 12px; /* مسافة تحت */
-      font-weight: 800; /* تخانة */
-    }
-
-    .first .medal { background: rgba(251, 191, 36, 0.18); color: var(--gold); } /* تنسيق ميدالية الأول */
-    .second .medal { background: rgba(203, 213, 225, 0.18); color: var(--silver); } /* تنسيق ميدالية الثاني */
-    .third .medal { background: rgba(217, 119, 6, 0.18); color: #fdba74; } /* تنسيق ميدالية الثالث */
-
-    .avatar { /* صورة رمزية كبيرة */
-      width: 66px; /* عرض */
-      height: 66px; /* ارتفاع */
-      border-radius: 50%; /* دائرة */
-      margin: 0 auto 12px; /* توسيط + مسافة تحت */
-      display: grid; /* Grid */
-      place-items: center; /* توسيط المحتوى */
-      font-weight: 800; /* تخانة */
-      font-size: 1.2rem; /* حجم الحروف */
-      color: #fff; /* لون أبيض */
-      background: linear-gradient(135deg, #22c55e, #0ea5e9); /* خلفية متدرجة */
-      border: 3px solid rgba(255,255,255,0.12); /* إطار */
-      box-shadow: 0 10px 22px rgba(0,0,0,0.25); /* ظل */
-    }
-
-    .name { /* اسم اللاعب */
-      font-weight: 700; /* تخانة */
-      font-size: 1rem; /* حجم */
-      margin-bottom: 4px; /* مسافة تحت */
-    }
-
-    .meta { /* بيانات إضافية زي الدولة والفريق */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.9rem; /* حجم */
-      margin-bottom: 14px; /* مسافة */
-    }
-
-    .score { /* النتيجة */
-      font-size: 1.5rem; /* حجم كبير */
-      font-weight: 800; /* تخانة */
-      letter-spacing: -0.03em; /* تباعد أقل */
-    }
-
-    .controls { /* حاوية أدوات التحكم */
-      display: grid; /* Grid */
-      gap: 14px; /* مسافة */
-      margin-bottom: 18px; /* مسافة تحت */
-    }
-
-    .search-row,
-    .filter-row { /* صف البحث وصف الفلاتر */
-      display: flex; /* Flex */
-      gap: 12px; /* مسافة */
-      flex-wrap: wrap; /* ينزل سطر جديد لو لازم */
-    }
-
-    .input,
-    .select { /* تنسيق input و select */
-      background: rgba(255,255,255,0.04); /* خلفية */
-      border: 1px solid var(--line); /* حدود */
-      color: var(--text); /* لون النص */
-      border-radius: 14px; /* حواف */
-      padding: 12px 14px; /* padding */
-      outline: none; /* إزالة حدود focus الافتراضية */
-      min-height: 46px; /* أقل ارتفاع */
-    }
-
-    .input { /* تنسيق حقل الإدخال */
-      flex: 1 1 260px; /* يتمدد مع حد أدنى */
-    }
-
-    .select { /* تنسيق القائمة المنسدلة */
-      min-width: 160px; /* أقل عرض */
-    }
-
-    .tabs { /* حاوية التابات */
-      display: flex; /* Flex */
-      gap: 10px; /* مسافة */
-      flex-wrap: wrap; /* التفاف */
-    }
-
-    .tab,
-    .btn { /* التابات والأزرار */
-      cursor: pointer; /* شكل الماوس */
-      padding: 10px 14px; /* padding */
-      transition: 0.2s ease; /* حركة ناعمة */
-      font-weight: 600; /* تخانة */
-    }
+        radial-gradient(circle at top left, rgba(53, 184, 255, 0.12), transparent 24%),
+        radial-gradient(circle at top right, rgba(103, 212, 255, 0.08), transparent 18%),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: 100vh;
+    }
 
-    .tab.active,
-    .btn:hover { /* التاب النشط أو الزر وقت hover */
-      background: rgba(255,255,255,0.10); /* خلفية أوضح */
-      border-color: rgba(255,255,255,0.18); /* حدود أوضح */
+    .sidebar {
+      background: linear-gradient(180deg, rgba(7, 15, 30, 0.97), rgba(4, 10, 22, 0.98));
+      border-right: 1px solid var(--line);
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
     }
 
-    .table-wrap { /* الحاوية الخارجية للجدول */
-      overflow: hidden; /* يمنع الزيادات */
-      border-radius: 18px; /* حواف */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.02); /* خلفية */
+    body.light-mode .sidebar {
+      background: linear-gradient(180deg, rgba(249, 252, 255, 0.98), rgba(240, 247, 255, 0.98));
     }
 
-    table { /* الجدول نفسه */
-      width: 100%; /* ياخد العرض كله */
-      border-collapse: collapse; /* دمج الحدود */
-    }
-
-    thead { /* رأس الجدول */
-      background: rgba(255,255,255,0.04); /* خلفية بسيطة */
-    }
-
-    th, td { /* خلايا الرأس والمحتوى */
-      padding: 16px 14px; /* padding */
-      text-align: left; /* محاذاة لليسار */
-      border-bottom: 1px solid var(--line); /* خط تحت كل صف */
-      vertical-align: middle; /* محاذاة رأسية في المنتصف */
-    }
-
-    tbody tr { /* صفوف جسم الجدول */
-      transition: background 0.2s ease, transform 0.2s ease; /* حركة ناعمة */
-    }
-
-    tbody tr:hover { /* لما تمرر على صف */
-      background: rgba(255,255,255,0.03); /* تظليل خفيف */
-    }
-
-    tbody tr.current-user { /* الصف الخاص بالمستخدم الحالي */
-      background: rgba(34, 197, 94, 0.10); /* خلفية خضراء خفيفة */
-      outline: 1px solid rgba(34, 197, 94, 0.22); /* إطار */
-    }
-
-    .rank-badge { /* شارة الترتيب */
-      min-width: 44px; /* أقل عرض */
-      display: inline-flex; /* Flex */
-      justify-content: center; /* توسيط أفقي */
-      align-items: center; /* توسيط عمودي */
-      padding: 8px 12px; /* padding */
-      border-radius: 999px; /* دائري */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.03); /* خلفية */
-      font-weight: 700; /* تخانة */
-    }
-
-    .player-cell { /* خلية اللاعب */
-      display: flex; /* Flex */
-      align-items: center; /* محاذاة */
-      gap: 12px; /* مسافة */
-    }
-
-    .mini-avatar { /* الصورة الرمزية الصغيرة */
-      width: 42px; /* عرض */
-      height: 42px; /* ارتفاع */
-      border-radius: 50%; /* دائرة */
-      display: grid; /* Grid */
-      place-items: center; /* توسيط */
-      font-weight: 800; /* تخانة */
-      color: white; /* لون الخط */
-      background: linear-gradient(135deg, #8b5cf6, #06b6d4); /* خلفية متدرجة */
-      flex-shrink: 0; /* مايصغرهاش */
-    }
-
-    .player-info strong { /* اسم اللاعب */
-      display: block; /* سطر لوحده */
-      margin-bottom: 3px; /* مسافة تحت */
-    }
-
-    .player-info span { /* الدولة أو النص الثانوي */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.88rem; /* حجم */
-    }
-
-    .trend { /* تنسيق عام للترند */
-      font-weight: 700; /* تخانة */
-    }
-
-    .trend.up { color: var(--accent); } /* لو التريند صاعد يبقى أخضر */
-    .trend.down { color: var(--danger); } /* لو التريند هابط يبقى أحمر */
-
-    .footer-note { /* الملاحظة تحت الجدول */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.9rem; /* حجم */
-      margin-top: 12px; /* مسافة فوق */
-    }
-
-    .quests-list { /* قائمة الـ quests */
-      display: grid; /* Grid */
-      gap: 14px; /* مسافة */
-    }
-
-    .quest-item { /* كل Quest */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.03); /* خلفية */
-      border-radius: 18px; /* حواف */
-      padding: 16px; /* padding */
-      display: grid; /* Grid */
-      gap: 12px; /* مسافة */
-    }
-
-    .quest-top { /* الجزء العلوي من الكويست */
-      display: flex; /* Flex */
-      justify-content: space-between; /* توزيع */
-      gap: 12px; /* مسافة */
-      align-items: flex-start; /* محاذاة من فوق */
-    }
-
-    .quest-badge { /* شارة نوع الكويست */
-      padding: 6px 10px; /* padding */
-      border-radius: 999px; /* دائري */
-      font-size: 0.78rem; /* حجم صغير */
-      font-weight: 700; /* تخانة */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.05); /* خلفية */
-      white-space: nowrap; /* يمنع نزول النص */
-    }
-
-    .quest-title { /* عنوان الكويست */
-      font-weight: 700; /* تخانة */
-      margin-bottom: 4px; /* مسافة */
-    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 8px 18px;
+    }
 
-    .quest-desc { /* وصف الكويست */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.9rem; /* حجم */
-      line-height: 1.45; /* ارتفاع السطر */
-    }
-
-    .progress-wrap { /* الخلفية الخارجية لشريط التقدم */
-      width: 100%; /* عرض كامل */
-      height: 10px; /* ارتفاع */
-      border-radius: 999px; /* دائري */
-      background: rgba(255,255,255,0.06); /* خلفية */
-      overflow: hidden; /* يخفي الزيادة */
-      border: 1px solid rgba(255,255,255,0.05); /* حدود */
-    }
-
-    .progress-bar { /* شريط التقدم الداخلي */
-      height: 100%; /* نفس ارتفاع الحاوية */
-      border-radius: 999px; /* دائري */
-      background: linear-gradient(90deg, var(--accent), var(--info)); /* تدرج لوني */
-      width: 0%; /* هيبدأ صفر ويتغير من JS */
-      transition: width 0.3s ease; /* حركة ناعمة عند تغير العرض */
-    }
-
-    .quest-bottom { /* الجزء السفلي من الكويست */
-      display: flex; /* Flex */
-      justify-content: space-between; /* توزيع */
-      align-items: center; /* محاذاة */
-      gap: 12px; /* مسافة */
-      flex-wrap: wrap; /* التفاف */
-    }
-
-    .quest-meta { /* بيانات الكويست */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.85rem; /* حجم */
-    }
-
-    .claim-btn { /* زر استلام المكافأة */
-      border: 1px solid rgba(34, 197, 94, 0.24); /* حدود خضراء */
-      background: rgba(34, 197, 94, 0.10); /* خلفية خضراء */
-      color: #bbf7d0; /* لون النص */
-      border-radius: 999px; /* دائري */
-      padding: 9px 14px; /* padding */
-      font-weight: 700; /* تخانة */
-      cursor: pointer; /* قابل للنقر */
-      transition: 0.2s ease; /* حركة ناعمة */
-    }
-
-    .claim-btn:hover:not(:disabled) { /* لو الزر متاح وعملت hover */
-      transform: translateY(-1px); /* يطلع لفوق شوية */
-      background: rgba(34, 197, 94, 0.16); /* الخلفية تقوى */
-    }
-
-    .claim-btn:disabled { /* لو الزر معطل */
-      opacity: 0.45; /* شفاف */
-      cursor: not-allowed; /* شكل غير مسموح */
-    }
-
-    .profiles-section { /* قسم البروفايلات */
-      display: grid; /* Grid */
-      gap: 16px; /* مسافة */
-    }
-
-    .profiles-grid { /* شبكة بطاقات البروفايل */
-      display: grid; /* Grid */
-      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 أعمدة */
-      gap: 16px; /* مسافة */
-    }
-
-    .profile-card { /* بطاقة بروفايل اللاعب */
-      position: relative; /* لطبقة before */
-      border-radius: 22px; /* حواف */
-      border: 1px solid var(--line); /* حدود */
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); /* خلفية */
-      overflow: hidden; /* إخفاء الزيادة */
-      padding: 20px; /* padding */
-      display: grid; /* Grid */
-      gap: 16px; /* مسافة */
-      min-height: 320px; /* أقل ارتفاع */
-    }
-
-    .profile-card::before { /* طبقة لونية فوق البطاقة */
-      content: ""; /* لازم */
-      position: absolute; /* تموضع مطلق */
-      inset: 0; /* يملأ البطاقة */
-      opacity: 0.12; /* شفافية */
-      pointer-events: none; /* مايعطلش التفاعل */
-    }
-
-    .profile-card.first::before { background: linear-gradient(180deg, var(--gold), transparent); } /* تأثير الأول */
-    .profile-card.second::before { background: linear-gradient(180deg, var(--silver), transparent); } /* تأثير الثاني */
-    .profile-card.third::before { background: linear-gradient(180deg, var(--bronze), transparent); } /* تأثير الثالث */
-
-    .profile-header { /* هيدر البروفايل */
-      display: flex; /* Flex */
-      align-items: center; /* محاذاة */
-      gap: 14px; /* مسافة */
-      position: relative; /* فوق الطبقة */
-      z-index: 1; /* لضمان ظهوره */
-    }
-
-    .profile-avatar { /* صورة رمزية كبيرة في البروفايل */
-      width: 74px; /* عرض */
-      height: 74px; /* ارتفاع */
-      border-radius: 50%; /* دائرة */
-      display: grid; /* Grid */
-      place-items: center; /* توسيط */
-      font-size: 1.35rem; /* حجم */
-      font-weight: 800; /* تخانة */
-      color: white; /* لون النص */
-      background: linear-gradient(135deg, var(--violet), var(--info)); /* خلفية */
-      border: 3px solid rgba(255,255,255,0.12); /* إطار */
-      flex-shrink: 0; /* مايصغرش */
-    }
-
-    .profile-title h3 { /* اسم اللاعب في البروفايل */
-      margin: 0 0 6px; /* مارجن */
-      font-size: 1.1rem; /* حجم */
-    }
-
-    .profile-title p { /* معلومات إضافية */
-      margin: 0; /* إزالة الهوامش */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.9rem; /* حجم */
-    }
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      position: relative;
+      transform: rotate(45deg);
+    }
 
-    .profile-rank { /* سطر الترتيب + اللقب */
-      display: inline-flex; /* Flex */
-      align-items: center; /* محاذاة */
-      gap: 8px; /* مسافة */
-      width: fit-content; /* على قد المحتوى */
-      padding: 8px 12px; /* padding */
-      border-radius: 999px; /* دائري */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.04); /* خلفية */
-      font-size: 0.84rem; /* حجم */
-      font-weight: 700; /* تخانة */
-      position: relative; /* فوق الطبقة */
-      z-index: 1; /* ترتيب الظهور */
+    .logo-mark span {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 16px rgba(53, 184, 255, 0.35);
     }
 
-    .profile-stats { /* شبكة الإحصائيات داخل البروفايل */
-      display: grid; /* Grid */
-      grid-template-columns: repeat(2, minmax(0, 1fr)); /* عمودين */
-      gap: 12px; /* مسافة */
-      position: relative; /* فوق الطبقة */
-      z-index: 1; /* ترتيب */
-    }
-
-    .mini-stat { /* صندوق إحصائية صغير */
-      border-radius: 16px; /* حواف */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.03); /* خلفية */
-      padding: 12px; /* padding */
-    }
-
-    .mini-stat-label { /* عنوان الإحصائية الصغيرة */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.8rem; /* حجم */
-      margin-bottom: 6px; /* مسافة */
-    }
+    .logo-mark span:nth-child(1) { top: 0; left: 8px; }
+    .logo-mark span:nth-child(2) { left: 0; top: 8px; }
+    .logo-mark span:nth-child(3) { right: 0; top: 8px; }
+    .logo-mark span:nth-child(4) { bottom: 0; left: 8px; }
 
-    .mini-stat-value { /* قيمة الإحصائية الصغيرة */
-      font-weight: 800; /* تخانة */
-      font-size: 1rem; /* حجم */
+    .logo h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--accent);
     }
 
-    .profile-bio { /* الوصف الشخصي */
-      color: #d9e2f0; /* لون النص */
-      line-height: 1.6; /* ارتفاع سطر */
-      font-size: 0.92rem; /* حجم */
-      position: relative; /* فوق الطبقة */
-      z-index: 1; /* ترتيب */
+    .nav-group-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin: 10px 8px 4px;
     }
 
-    .tag-row { /* صف التاجات */
-      display: flex; /* Flex */
-      gap: 8px; /* مسافة */
-      flex-wrap: wrap; /* التفاف */
-      position: relative; /* فوق الطبقة */
-      z-index: 1; /* ترتيب */
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    .tag { /* شكل كل تاج */
-      border-radius: 999px; /* دائري */
-      padding: 7px 10px; /* padding */
-      font-size: 0.78rem; /* حجم */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.04); /* خلفية */
-      color: var(--text); /* لون النص */
+    .nav-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding: 16px 18px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: left;
+      transition: 0.25s ease;
     }
 
-    .profile-btn { /* زر عرض البروفايل الكامل */
-      width: fit-content; /* على قد المحتوى */
-      border-radius: 999px; /* دائري */
-      padding: 10px 14px; /* padding */
-      border: 1px solid rgba(56, 189, 248, 0.24); /* حدود زرقاء */
-      background: rgba(56, 189, 248, 0.10); /* خلفية زرقاء */
-      color: #bae6fd; /* لون النص */
-      font-weight: 700; /* تخانة */
-      cursor: pointer; /* قابل للنقر */
-      position: relative; /* فوق الطبقة */
-      z-index: 1; /* ترتيب */
+    .nav-btn:hover {
+      background: var(--accent-soft);
+      color: var(--text);
+      border-color: var(--line);
+      transform: translateX(3px);
     }
 
-    .profile-btn:hover { /* عند المرور على الزر */
-      background: rgba(56, 189, 248, 0.18); /* خلفية أوضح */
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(31, 90, 160, 0.35), rgba(53, 184, 255, 0.16));
+      color: var(--accent);
+      border-color: var(--line-2);
+      box-shadow: inset 0 0 0 1px rgba(53, 184, 255, 0.12);
     }
 
-    .modal { /* الخلفية السوداء للمودال */
-      position: fixed; /* ثابتة فوق الصفحة */
-      inset: 0; /* تغطي الشاشة كلها */
-      background: rgba(2, 6, 23, 0.72); /* خلفية معتمة */
-      backdrop-filter: blur(8px); /* ضبابية */
-      display: none; /* مخفية افتراضيًا */
-      align-items: center; /* توسيط عمودي */
-      justify-content: center; /* توسيط أفقي */
-      padding: 20px; /* padding */
-      z-index: 1000; /* فوق كل العناصر */
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px 8px 8px;
     }
 
-    .modal.open { /* لما نضيف class open */
-      display: flex; /* يظهر المودال */
+    .xp-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
     }
 
-    .modal-content { /* صندوق محتوى المودال */
-      width: min(640px, 100%); /* أقصى عرض 640 */
-      background: var(--panel-3); /* خلفية */
-      border: 1px solid var(--line); /* حدود */
-      border-radius: 28px; /* حواف */
-      box-shadow: var(--shadow); /* ظل */
-      padding: 24px; /* padding */
-      position: relative; /* للزر */
-      overflow: hidden; /* إخفاء الزيادة */
+    .xp-label {
+      color: var(--accent);
+      font-size: 1rem;
+      margin-bottom: 12px;
     }
 
-    .modal-close { /* زر الغلق */
-      position: absolute; /* في زاوية المودال */
-      top: 16px; /* من فوق */
-      right: 16px; /* من اليمين */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.04); /* خلفية */
-      color: var(--text); /* لون النص */
-      width: 40px; /* عرض */
-      height: 40px; /* ارتفاع */
-      border-radius: 50%; /* دائرة */
-      cursor: pointer; /* قابل للنقر */
-      font-size: 1rem; /* حجم */
-      font-weight: 700; /* تخانة */
+    .xp-bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      margin-bottom: 12px;
     }
 
-    .modal-close:hover { /* عند المرور على زر الغلق */
-      background: rgba(255,255,255,0.10); /* خلفية أوضح */
+    .xp-fill {
+      width: 65%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 999px;
     }
 
-    .modal-body { /* جسم المودال */
-      display: grid; /* Grid */
-      gap: 18px; /* مسافة */
+    .xp-meta {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.95rem;
     }
 
-    .modal-top { /* أعلى المودال */
-      display: flex; /* Flex */
-      gap: 16px; /* مسافة */
-      align-items: center; /* محاذاة */
-      padding-right: 48px; /* مسافة لزر الغلق */
-      flex-wrap: wrap; /* التفاف */
+    .main {
+      padding: 26px;
+      overflow: hidden;
     }
 
-    .modal-avatar { /* صورة رمزية بالمودال */
-      width: 90px; /* عرض */
-      height: 90px; /* ارتفاع */
-      border-radius: 50%; /* دائرة */
-      display: grid; /* Grid */
-      place-items: center; /* توسيط */
-      font-size: 1.5rem; /* حجم */
-      font-weight: 800; /* تخانة */
-      color: white; /* لون */
-      background: linear-gradient(135deg, #8b5cf6, #06b6d4); /* خلفية */
-      border: 3px solid rgba(255,255,255,0.12); /* إطار */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
     }
 
-    .modal-title h2 { /* اسم اللاعب داخل المودال */
-      margin: 0 0 8px; /* مارجن */
-      font-size: 1.45rem; /* حجم */
+    .topbar-left h2 {
+      font-size: 2rem;
+      margin-bottom: 6px;
     }
 
-    .modal-title p { /* معلومات إضافية */
-      margin: 0; /* إزالة الهوامش */
-      color: var(--muted); /* لون هادئ */
+    .topbar-left p {
+      color: var(--muted);
+      font-size: 1rem;
     }
 
-    .modal-grid { /* شبكة الصناديق داخل المودال */
-      display: grid; /* Grid */
-      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 أعمدة */
-      gap: 12px; /* مسافة */
+    .topbar-right {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .modal-box { /* كل صندوق داخل المودال */
-      border-radius: 16px; /* حواف */
-      border: 1px solid var(--line); /* حدود */
-      background: rgba(255,255,255,0.03); /* خلفية */
-      padding: 14px; /* padding */
+    .top-control {
+      border: 1px solid var(--line-2);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.25s ease;
     }
 
-    .modal-box span { /* عنوان صغير داخل الصندوق */
-      display: block; /* سطر لوحده */
-      color: var(--muted); /* لون هادئ */
-      font-size: 0.8rem; /* حجم */
-      margin-bottom: 6px; /* مسافة */
+    .top-control:hover {
+      transform: translateY(-2px);
+      background: var(--panel-2);
     }
 
-    .modal-box strong { /* القيمة داخل الصندوق */
-      font-size: 1rem; /* حجم */
+    .page {
+      display: none;
+      animation: fadeIn 0.35s ease;
     }
 
-    .modal-bio { /* النص التعريفي داخل المودال */
-      color: #dce7f5; /* لون */
-      line-height: 1.7; /* ارتفاع سطر */
+    .page.active {
+      display: block;
     }
 
-    @media (max-width: 1100px) { /* لو عرض الشاشة 1100 أو أقل */
-      .profiles-grid {
-        grid-template-columns: 1fr; /* خلي بطاقات البروفايل عمود واحد */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
-    @media (max-width: 980px) { /* لو الشاشة أصغر */
-      .hero,
-      .layout {
-        grid-template-columns: 1fr; /* خلي الـ hero والـ layout عمود واحد */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 24px 24px;
+      box-shadow: var(--shadow);
+      min-height: 118px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-title {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .stat-value {
+      color: var(--accent);
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 340px;
+      gap: 22px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .panel-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .hero-alert {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      align-items: center;
+      gap: 22px;
+      background: linear-gradient(90deg, rgba(53, 184, 255, 0.12), rgba(103, 212, 255, 0.06));
+      border: 1px solid var(--line-2);
+      border-left: 6px solid var(--accent);
+    }
+
+    .hero-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.2), rgba(53, 184, 255, 0.18));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+    }
+
+    .cta-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border: none;
+      color: #05111f;
+      padding: 15px 26px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 26px rgba(53, 184, 255, 0.25);
+    }
+
+    .outline-btn {
+      background: transparent;
+      border: 1px solid var(--line-2);
+      color: var(--accent);
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .outline-btn:hover {
+      background: var(--accent-soft);
+      transform: translateY(-2px);
+    }
+
+    .objective-box,
+    .mini-card,
+    .feed-item,
+    .weapon-card,
+    .item-card,
+    .setting-row,
+    .voice-row,
+    .deploy-row,
+    .bulletin-row,
+    .table-row,
+    .offer-row,
+    .loot-row {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .objective-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      border-style: dashed;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .map-sector {
+      min-height: 120px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(53, 184, 255, 0.05), rgba(53, 184, 255, 0.02)),
+        rgba(255, 255, 255, 0.02);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-sector h4 {
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .map-sector p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .sector-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+    }
+
+    .dot-green { background: var(--success); box-shadow: 0 0 14px rgba(39, 209, 127, 0.5); }
+    .dot-red { background: var(--danger); box-shadow: 0 0 14px rgba(255, 94, 115, 0.5); }
+    .dot-yellow { background: var(--warning); box-shadow: 0 0 14px rgba(255, 204, 51, 0.5); }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .bulletin-row,
+    .feed-item,
+    .table-row,
+    .offer-row,
+    .loot-row,
+    .voice-row,
+    .deploy-row,
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .left-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .badge {
+      font-size: 0.85rem;
+      font-weight: 900;
+      padding: 7px 10px;
+      border-radius: 10px;
+      color: #081120;
+    }
+
+    .badge-blue { background: var(--accent); }
+    .badge-yellow { background: var(--warning); }
+    .badge-red { background: var(--danger); color: white; }
+    .badge-green { background: var(--success); }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .friends-list,
+    .alerts-list,
+    .chat-feed,
+    .voice-list,
+    .history-list,
+    .rank-list,
+    .loot-list,
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .friend-status {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .friend-status.online { background: var(--success); box-shadow: 0 0 12px rgba(39, 209, 127, 0.45); }
+    .friend-status.busy { background: var(--warning); box-shadow: 0 0 12px rgba(255, 204, 51, 0.4); }
+    .friend-status.offline { background: var(--danger); opacity: 0.7; }
+
+    .weapon-grid,
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .weapon-card h4,
+    .item-card h4 {
+      font-size: 1.08rem;
+      margin-bottom: 10px;
+    }
+
+    .meta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .table-head,
+    .table-row {
+      display: grid;
+      grid-template-columns: 80px 1.4fr 120px 100px 140px 120px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .table-head {
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0 8px 12px;
+    }
+
+    .rank-number {
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 1rem;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .status-active { color: var(--success); }
+    .status-online { color: var(--accent); }
+    .status-match { color: var(--warning); }
+    .status-equipped { color: var(--success); }
+    .status-stored { color: var(--muted); }
+
+    .toggle {
+      width: 60px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      top: 3px;
+      left: 4px;
+      transition: 0.25s ease;
+    }
+
+    .toggle.on::after {
+      left: 30px;
+    }
+
+    .settings-note {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+    }
+
+    @media (max-width: 1280px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .weapon-grid,
+      .item-grid,
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table-head,
+      .table-row {
+        grid-template-columns: 70px 1.2fr 90px 80px 110px 110px;
+        font-size: 0.92rem;
       }
     }
 
-    @media (max-width: 760px) { /* لو الشاشة موبايل تقريبًا */
-      .top-three {
-        grid-template-columns: 1fr; /* خلي البوديوم عمود واحد */
+    @media (max-width: 980px) {
+      .app-shell {
+        grid-template-columns: 1fr;
       }
 
-      .podium-item.first,
-      .podium-item.second,
-      .podium-item.third {
-        min-height: unset; /* شيل الارتفاعات الثابتة */
+      .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        z-index: 30;
+        width: 290px;
+        transition: 0.3s ease;
       }
 
-      th:nth-child(4), td:nth-child(4),
-      th:nth-child(5), td:nth-child(5) {
-        display: none; /* إخفاء عمودي Trend و Team على الشاشات الصغيرة */
+      .sidebar.open {
+        left: 0;
       }
 
-      .modal-grid,
-      .profile-stats {
-        grid-template-columns: 1fr; /* خليهم عمود واحد */
+      .mobile-menu-btn {
+        display: inline-flex;
       }
 
-      .modal-top {
-        align-items: flex-start; /* محاذاة من فوق */
+      .main {
+        padding: 20px;
+      }
+
+      .hero-alert {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .objective-box,
+      .bulletin-row,
+      .feed-item,
+      .offer-row,
+      .loot-row,
+      .voice-row,
+      .deploy-row,
+      .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .table-head {
+        display: none;
+      }
+
+      .table-row {
+        grid-template-columns: 1fr 1fr;
       }
     }
-  </style> <!-- نهاية CSS -->
+
+    @media (max-width: 640px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .map-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-left h2 {
+        font-size: 1.5rem;
+      }
+
+      .stat-value {
+        font-size: 1.6rem;
+      }
+
+      .table-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
+<body>
 
-<body> <!-- بداية محتوى الصفحة الظاهر -->
-  <div class="container"> <!-- الحاوية الرئيسية لكل الصفحة -->
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo">
+        <div class="logo-mark">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <h1>INFINITY</h1>
+      </div>
 
-    <section class="hero"> <!-- القسم العلوي الرئيسي -->
-      <div> <!-- العمود الأول في الـ hero -->
-        <div class="headline"> <!-- حاوية العنوان والتحديث -->
-          <div class="title-wrap"> <!-- العنوان والوصف -->
-            <h1>Leaderboard Dashboard</h1> <!-- عنوان الصفحة -->
-            <p>
-              Clean, modern, and actually usable. This version includes a podium, filters,
-              search, current-user highlight, quests, and profile cards for the top players.
-            </p> <!-- وصف مختصر للداشبورد -->
+      <div class="nav">
+        <button class="nav-btn active" data-page="dashboard">🏠 Dashboard</button>
+        <button class="nav-btn" data-page="battle-map">🗺️ Battle Map</button>
+        <button class="nav-btn" data-page="arsenal-market">⚔️ Arsenal Market</button>
+        <button class="nav-btn" data-page="pro-ranking">🏆 Pro Ranking</button>
+      </div>
+
+      <div class="nav-group-title">Social & Profile</div>
+
+      <div class="nav">
+        <button class="nav-btn" data-page="global-chat">👥 Global Chat</button>
+        <button class="nav-btn" data-page="inventory">📦 Inventory</button>
+        <button class="nav-btn" data-page="settings">⚙️ Settings</button>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="xp-card">
+          <div class="xp-label">Current XP</div>
+          <div class="xp-bar">
+            <div class="xp-fill"></div>
           </div>
+          <div class="xp-meta">Level 24 • 4,500 XP</div>
+        </div>
+      </div>
+    </aside>
 
-          <div class="chip" id="lastUpdated">Updated: --</div> <!-- مكان وقت آخر تحديث، هيتغير بالجافاسكريبت -->
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Command center overview for your Infinity OS profile.</p>
         </div>
 
-        <div class="pill-group"> <!-- مجموعة مميزات سريعة -->
-          <div class="pill">Live Ranking</div> <!-- ميزة -->
-          <div class="pill">Search Players</div> <!-- ميزة -->
-          <div class="pill">Week / Month / All Time</div> <!-- ميزة -->
-          <div class="pill">Top 3 Podium</div> <!-- ميزة -->
-          <div class="pill">Quests System</div> <!-- ميزة -->
-          <div class="pill">Player Profiles</div> <!-- ميزة -->
+        <div class="topbar-right">
+          <button class="top-control mobile-menu-btn" id="menuToggle">☰ Menu</button>
+          <button class="top-control" id="themeToggle">🌙 Dark / Light</button>
+          <button class="top-control">🌐 English</button>
         </div>
       </div>
 
-      <div class="stats"> <!-- شبكة الإحصائيات -->
-        <div class="stat-box"> <!-- صندوق إحصائية -->
-          <div class="stat-label">Total Players</div> <!-- عنوان -->
-          <div class="stat-value" id="statPlayers">0</div> <!-- القيمة هتتحدث من JS -->
-        </div>
-
-        <div class="stat-box"> <!-- صندوق إحصائية -->
-          <div class="stat-label">Highest Score</div> <!-- عنوان -->
-          <div class="stat-value" id="statTopScore">0</div> <!-- القيمة -->
-        </div>
-
-        <div class="stat-box"> <!-- صندوق إحصائية -->
-          <div class="stat-label">Average Score</div> <!-- عنوان -->
-          <div class="stat-value" id="statAvgScore">0</div> <!-- القيمة -->
-        </div>
-
-        <div class="stat-box"> <!-- صندوق إحصائية -->
-          <div class="stat-label">Current User Rank</div> <!-- عنوان -->
-          <div class="stat-value" id="statMyRank">--</div> <!-- ترتيب المستخدم الحالي -->
-        </div>
-      </div>
-    </section>
-
-    <section class="layout"> <!-- القسم الأوسط بتخطيط عمودين -->
-      <div class="left-column"> <!-- العمود الأيسر -->
-        <div class="card"> <!-- كارت Top 3 -->
-          <div class="card-header"> <!-- هيدر الكارت -->
-            <h2>Top 3 Players</h2> <!-- عنوان -->
-            <div class="chip" id="activeModeLabel">Mode: All Time</div> <!-- الوضع الحالي -->
+      <!-- Dashboard -->
+      <section class="page active" id="dashboard">
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-title">Wallet</div>
+            <div class="stat-value">12,450 NC</div>
           </div>
-          <div class="top-three" id="topThree"></div> <!-- مكان عرض أول 3 لاعبين -->
-        </div>
-
-        <div class="card"> <!-- كارت الـ quests -->
-          <div class="card-header"> <!-- هيدر -->
-            <h2>Quests</h2> <!-- عنوان -->
-            <div class="chip">Daily Rewards</div> <!-- شارة -->
+          <div class="stat-card">
+            <div class="stat-title">Battles</div>
+            <div class="stat-value">452 Won</div>
           </div>
-          <div class="quests-list" id="questsList"></div> <!-- مكان عرض الكويستات -->
-        </div>
-      </div>
-
-      <div class="card"> <!-- العمود الأيمن: جدول الترتيب -->
-        <div class="card-header"> <!-- هيدر الجدول -->
-          <h2>Rankings</h2> <!-- عنوان -->
-          <div class="tabs" id="modeTabs"> <!-- التابات الخاصة بالـ modes -->
-            <button class="tab active" data-mode="allTime">All Time</button> <!-- تاب All Time -->
-            <button class="tab" data-mode="monthly">Monthly</button> <!-- تاب Monthly -->
-            <button class="tab" data-mode="weekly">Weekly</button> <!-- تاب Weekly -->
+          <div class="stat-card">
+            <div class="stat-title">Rank</div>
+            <div class="stat-value">#4 Global</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Status</div>
+            <div class="stat-value" style="color: var(--success);">ACTIVE</div>
           </div>
         </div>
 
-        <div class="controls"> <!-- أدوات البحث والفلترة -->
-          <div class="search-row"> <!-- صف البحث -->
-            <input id="searchInput" class="input" type="text" placeholder="Search by name, team, or country..." /> <!-- حقل بحث -->
-            <select id="teamFilter" class="select"> <!-- فلتر الفريق -->
-              <option value="all">All Teams</option> <!-- اختيار افتراضي -->
-            </select>
-          </div>
+        <div class="content-grid">
+          <div>
+            <div class="panel hero-alert">
+              <div class="hero-icon">📢</div>
+              <div>
+                <div class="panel-title">Server Maintenance & Patch v2.4</div>
+                <div class="panel-subtitle">Servers will be down for 2 hours on Friday at 04:00 UTC. New skins and map balances are coming with major combat tuning.</div>
+              </div>
+              <button class="outline-btn">Read More</button>
+            </div>
 
-          <div class="filter-row"> <!-- صف الأزرار -->
-            <button class="btn" id="sortScoreBtn">Sort by Score ↓</button> <!-- ترتيب بالنقاط -->
-            <button class="btn" id="sortNameBtn">Sort by Name A-Z</button> <!-- ترتيب بالاسم -->
-            <button class="btn" id="resetBtn">Reset Filters</button> <!-- إعادة تعيين -->
-          </div>
-        </div>
+            <div class="panel">
+              <div class="panel-title">Today's Special Event: Void Invasion</div>
+              <div class="panel-subtitle">The Shadow Army is attacking Sector 4. Heroes are needed. Rewards include Double XP, Elite Credits, and Legendary Loot Boxes.</div>
 
-        <div class="table-wrap"> <!-- حاوية الجدول -->
-          <table> <!-- الجدول -->
-            <thead> <!-- رأس الجدول -->
-              <tr> <!-- صف -->
-                <th>Rank</th> <!-- عمود الترتيب -->
-                <th>Player</th> <!-- عمود اللاعب -->
-                <th>Score</th> <!-- عمود النقاط -->
-                <th>Trend</th> <!-- عمود الاتجاه -->
-                <th>Team</th> <!-- عمود الفريق -->
-              </tr>
-            </thead>
-            <tbody id="leaderboardBody"></tbody> <!-- جسم الجدول اللي هيتولد بالجافاسكريبت -->
-          </table>
-        </div>
+              <div class="objective-box">
+                <div>
+                  <div class="section-title">🎯 Daily Objective</div>
+                  <div class="muted">Win 5 skirmishes in Shadow Peak and survive the final elite wave without squad wipes.</div>
+                </div>
+                <button class="cta-btn">Accept Contract</button>
+              </div>
+            </div>
 
-        <div class="footer-note">Tip: the current user is highlighted so they do not need to play Where’s Waldo with their rank.</div> <!-- ملاحظة أسفل الجدول -->
-      </div>
-    </section>
+            <div class="panel">
+              <div class="panel-title">System Bulletins</div>
+              <div class="stack">
+                <div class="bulletin-row">
+                  <div class="left-cluster">
+                    <span class="badge badge-blue">UPDATE</span>
+                    <div>New <strong>"Void Katana"</strong> now available in the Arsenal.</div>
+                  </div>
+                </div>
 
-    <section class="card profiles-section"> <!-- قسم البروفايلات -->
-      <div class="card-header"> <!-- الهيدر -->
-        <h2>Champion Profiles</h2> <!-- عنوان -->
-        <div class="chip">Top 3 Dynamic Profiles</div> <!-- شارة -->
-      </div>
-      <div class="profiles-grid" id="profilesGrid"></div> <!-- مكان عرض بروفايلات أول 3 -->
-    </section>
-  </div>
+                <div class="bulletin-row">
+                  <div class="left-cluster">
+                    <span class="badge badge-yellow">PROMO</span>
+                    <div>20% discount on all Cyber Skins this weekend.</div>
+                  </div>
+                </div>
 
-  <div class="modal" id="profileModal"> <!-- المودال الخاص بعرض بروفايل كامل -->
-    <div class="modal-content"> <!-- صندوق المودال -->
-      <button class="modal-close" id="closeModal">✕</button> <!-- زر الغلق -->
-      <div class="modal-body" id="modalBody"></div> <!-- محتوى المودال بيتولد بالجافاسكريبت -->
-    </div>
-  </div>
-
-  <script> // بداية JavaScript
-
-    const currentUserId = 4; // ده ID الخاص بالمستخدم الحالي عشان نميزه في الجدول
-
-    const players = [ // مصفوفة اللاعبين
-      {
-        id: 1, // معرف اللاعب
-        name: 'Lina Hassan', // اسم اللاعب
-        country: 'Egypt', // الدولة
-        team: 'Alpha', // الفريق
-        weekly: 220, // نقاط الأسبوع
-        monthly: 740, // نقاط الشهر
-        allTime: 2480, // نقاط كل الأوقات
-        trend: 'up', // اتجاه الأداء
-        level: 18, // المستوى
-        wins: 46, // عدد الانتصارات
-        questsCompleted: 22, // عدد الكويستات المكتملة
-        title: 'Tactical Climber', // لقب اللاعب
-        favoriteMode: 'Arena Rush', // الطور المفضل
-        bio: 'A focused competitor known for clean strategy, stable progress, and strong endgame decisions. Usually climbs quietly, then steals the spotlight.', // نبذة
-        badges: ['Fast Learner', 'Win Streak', 'Team Alpha'] // الشارات
-      },
-      {
-        id: 2,
-        name: 'Omar Tarek',
-        country: 'Jordan',
-        team: 'Nova',
-        weekly: 205,
-        monthly: 790,
-        allTime: 2540,
-        trend: 'down',
-        level: 19,
-        wins: 51,
-        questsCompleted: 25,
-        title: 'Score Machine',
-        favoriteMode: 'Battle Queue',
-        bio: 'A high-volume scorer with aggressive pacing and consistent pressure. Drops points sometimes, but still stays dangerously close to the crown.',
-        badges: ['Sharp Shooter', 'Veteran', 'Nova Core']
-      },
-      {
-        id: 3,
-        name: 'Sara Ali',
-        country: 'Saudi Arabia',
-        team: 'Alpha',
-        weekly: 240,
-        monthly: 860,
-        allTime: 2715,
-        trend: 'up',
-        level: 22,
-        wins: 63,
-        questsCompleted: 31,
-        title: 'Season Queen',
-        favoriteMode: 'Ranked Elite',
-        bio: 'Dominates with elite consistency and scary momentum. The kind of player who makes second place look like unpaid internship energy.',
-        badges: ['MVP', 'Top Ranked', 'Alpha Captain']
-      },
-      {
-        id: 4,
-        name: 'You',
-        country: 'Egypt',
-        team: 'Nova',
-        weekly: 198,
-        monthly: 705,
-        allTime: 2300,
-        trend: 'up',
-        level: 17,
-        wins: 39,
-        questsCompleted: 20,
-        title: 'Dark Horse',
-        favoriteMode: 'Challenge Mix',
-        bio: 'Balanced and flexible. Strong potential, rising steadily, and one good streak away from bullying the top 3.',
-        badges: ['Underdog', 'Quest Grinder', 'Nova Unit']
-      },
-      {
-        id: 5,
-        name: 'Mazen Adel',
-        country: 'UAE',
-        team: 'Vertex',
-        weekly: 190,
-        monthly: 640,
-        allTime: 2190,
-        trend: 'down',
-        level: 16,
-        wins: 34,
-        questsCompleted: 18,
-        title: 'Control Player',
-        favoriteMode: 'Precision Match',
-        bio: 'Methodical player who values control and steady returns over flashy swings.',
-        badges: ['Calm Hands', 'Reliable', 'Vertex']
-      },
-      {
-        id: 6,
-        name: 'Nour Samir',
-        country: 'Egypt',
-        team: 'Vertex',
-        weekly: 176,
-        monthly: 615,
-        allTime: 2080,
-        trend: 'up',
-        level: 15,
-        wins: 30,
-        questsCompleted: 17,
-        title: 'Steady Builder',
-        favoriteMode: 'Classic Ladder',
-        bio: 'Builds momentum through discipline and good decision-making.',
-        badges: ['Comeback', 'Builder', 'Vertex']
-      },
-      {
-        id: 7,
-        name: 'Yousef Karim',
-        country: 'Kuwait',
-        team: 'Nova',
-        weekly: 214,
-        monthly: 720,
-        allTime: 2410,
-        trend: 'up',
-        level: 18,
-        wins: 42,
-        questsCompleted: 21,
-        title: 'Efficient Closer',
-        favoriteMode: 'Rank Sprint',
-        bio: 'Great at converting strong starts into clean finishes.',
-        badges: ['Closer', 'Focused', 'Nova']
-      },
-      {
-        id: 8,
-        name: 'Mariam Essam',
-        country: 'Qatar',
-        team: 'Pulse',
-        weekly: 169,
-        monthly: 590,
-        allTime: 1995,
-        trend: 'down',
-        level: 14,
-        wins: 26,
-        questsCompleted: 14,
-        title: 'Creative Runner',
-        favoriteMode: 'Quick Match',
-        bio: 'Fast and creative, but still refining consistency under pressure.',
-        badges: ['Creative', 'Speed Run', 'Pulse']
-      },
-      {
-        id: 9,
-        name: 'Huda Nasser',
-        country: 'Bahrain',
-        team: 'Pulse',
-        weekly: 227,
-        monthly: 775,
-        allTime: 2505,
-        trend: 'up',
-        level: 20,
-        wins: 54,
-        questsCompleted: 28,
-        title: 'Momentum Master',
-        favoriteMode: 'Endurance Queue',
-        bio: 'Thrives in long runs and punishes weak lobbies with brutal efficiency.',
-        badges: ['Momentum', 'Top Finisher', 'Pulse']
-      },
-      {
-        id: 10,
-        name: 'Adam Fares',
-        country: 'Egypt',
-        team: 'Alpha',
-        weekly: 155,
-        monthly: 560,
-        allTime: 1840,
-        trend: 'down',
-        level: 13,
-        wins: 21,
-        questsCompleted: 11,
-        title: 'Rising Rookie',
-        favoriteMode: 'Starter Cup',
-        bio: 'Still early in the grind, but the foundation is there.',
-        badges: ['Rookie', 'Potential', 'Alpha']
-      }
-    ];
-
-    const quests = [ // مصفوفة المهمات/الكويستات
-      {
-        id: 1, // معرف الكويست
-        title: 'Win 3 Matches', // اسم الكويست
-        description: 'Complete three ranked matches to earn a quick reward boost.', // وصف
-        reward: '+120 XP', // المكافأة
-        progress: 2, // التقدم الحالي
-        goal: 3, // الهدف المطلوب
-        rarity: 'Daily' // نوع/ندرة الكويست
-      },
-      {
-        id: 2,
-        title: 'Score 700 Points',
-        description: 'Accumulate 700 total leaderboard points across your current mode.',
-        reward: '+250 Coins',
-        progress: 560,
-        goal: 700,
-        rarity: 'Epic'
-      },
-      {
-        id: 3,
-        title: 'Stay Top 5',
-        description: 'Maintain a position inside the top five players for the active ranking mode.',
-        reward: 'Profile Badge',
-        progress: 1,
-        goal: 1,
-        rarity: 'Elite'
-      },
-      {
-        id: 4,
-        title: 'Complete 5 Quests',
-        description: 'Finish five quests to unlock a seasonal reward chest.',
-        reward: 'Rare Chest',
-        progress: 3,
-        goal: 5,
-        rarity: 'Seasonal'
-      }
-    ];
-
-    let state = { // كائن الحالة الحالي للواجهة
-      mode: 'allTime', // الوضع الحالي: allTime / monthly / weekly
-      search: '', // قيمة البحث الحالية
-      team: 'all', // الفريق المختار حاليًا
-      sort: 'score' // نوع الترتيب الحالي
-    };
-
-    const leaderboardBody = document.getElementById('leaderboardBody'); // مرجع لـ tbody الخاص بالجدول
-    const topThree = document.getElementById('topThree'); // مرجع لمكان عرض أول 3
-    const searchInput = document.getElementById('searchInput'); // مرجع لحقل البحث
-    const teamFilter = document.getElementById('teamFilter'); // مرجع لفلتر الفريق
-    const activeModeLabel = document.getElementById('activeModeLabel'); // مرجع لشارة الوضع الحالي
-    const lastUpdated = document.getElementById('lastUpdated'); // مرجع لنص آخر تحديث
-    const questsList = document.getElementById('questsList'); // مرجع لقائمة الكويستات
-    const profilesGrid = document.getElementById('profilesGrid'); // مرجع لشبكة البروفايلات
-    const profileModal = document.getElementById('profileModal'); // مرجع للمودال
-    const modalBody = document.getElementById('modalBody'); // مرجع لمحتوى المودال
-
-    function initials(name) { // دالة ترجع أول حرفين من اسم اللاعب
-      return name // ترجع النتيجة النهائية
-        .split(' ') // تقسيم الاسم إلى كلمات
-        .map(part => part[0]) // أخذ أول حرف من كل كلمة
-        .slice(0, 2) // أخذ أول حرفين فقط
-        .join('') // دمجهم في نص واحد
-        .toUpperCase(); // تحويلهم لحروف كبيرة
-    }
-
-    function formatMode(mode) { // دالة لتحويل قيمة المود إلى نص مفهوم
-      if (mode === 'allTime') return 'All Time'; // لو allTime رجع النص ده
-      if (mode === 'monthly') return 'Monthly'; // لو monthly رجع النص ده
-      return 'Weekly'; // غير كده رجع Weekly
-    }
-
-    function getSortedPlayers() { // دالة ترجع اللاعبين بعد الفلترة والترتيب
-      let list = [...players]; // ننسخ المصفوفة الأصلية عشان ما نغيرهاش
-
-      if (state.search.trim()) { // لو في نص داخل البحث
-        const q = state.search.toLowerCase(); // نحوله لحروف صغيرة
-        list = list.filter(player => // فلترة اللاعبين
-          player.name.toLowerCase().includes(q) || // لو الاسم يحتوي كلمة البحث
-          player.team.toLowerCase().includes(q) || // أو الفريق يحتوي كلمة البحث
-          player.country.toLowerCase().includes(q) // أو الدولة تحتوي كلمة البحث
-        );
-      }
-
-      if (state.team !== 'all') { // لو المستخدم اختار فريق معين
-        list = list.filter(player => player.team === state.team); // فلترة حسب الفريق
-      }
-
-      if (state.sort === 'name') { // لو الترتيب بالاسم
-        list.sort((a, b) => a.name.localeCompare(b.name)); // رتب أبجديًا
-      } else { // غير كده
-        list.sort((a, b) => b[state.mode] - a[state.mode]); // رتب تنازليًا حسب السكور للوضع الحالي
-      }
-
-      return list; // رجع القائمة النهائية
-    }
-
-    function getRankedPlayers() { // دالة تحسب الرتب الحقيقية بغض النظر عن البحث والفلترة
-      const base = [...players].sort((a, b) => b[state.mode] - a[state.mode]); // ترتيب كل اللاعبين حسب الوضع الحالي
-      return base.map((player, index) => ({ ...player, rank: index + 1 })); // إضافة خاصية rank لكل لاعب
-    }
-
-    function getTopThreePlayers() { // دالة ترجع أول 3 لاعبين
-      return [...players] // نسخ المصفوفة
-        .sort((a, b) => b[state.mode] - a[state.mode]) // ترتيب حسب السكور
-        .slice(0, 3); // أخذ أول ثلاثة فقط
-    }
-
-    function renderStats() { // دالة عرض الإحصائيات العلوية
-      const ranked = getRankedPlayers(); // جلب اللاعبين مع الرتب
-      const sorted = [...ranked].sort((a, b) => b[state.mode] - a[state.mode]); // ترتيبهم تنازليًا
-      const values = sorted.map(player => player[state.mode]); // استخراج قيم السكور فقط
-      const topScore = values[0] || 0; // أعلى سكور أو صفر لو مفيش
-      const avg = values.length ? Math.round(values.reduce((sum, n) => sum + n, 0) / values.length) : 0; // حساب المتوسط
-      const currentUser = ranked.find(player => player.id === currentUserId); // إيجاد المستخدم الحالي
-
-      document.getElementById('statPlayers').textContent = players.length; // عرض عدد اللاعبين
-      document.getElementById('statTopScore').textContent = topScore; // عرض أعلى سكور
-      document.getElementById('statAvgScore').textContent = avg; // عرض المتوسط
-      document.getElementById('statMyRank').textContent = currentUser ? `#${currentUser.rank}` : '--'; // عرض ترتيب المستخدم أو --
-      activeModeLabel.textContent = `Mode: ${formatMode(state.mode)}`; // تحديث اسم الوضع الحالي
-      lastUpdated.textContent = `Updated: ${new Date().toLocaleString()}`; // تحديث وقت آخر تحديث
-    }
-
-    function renderTopThree() { // دالة عرض أول 3 لاعبين على شكل بوديوم
-      const ranked = getTopThreePlayers(); // جلب أول 3 لاعبين
-
-      const arranged = ranked.length === 3 ? [ranked[1], ranked[0], ranked[2]] : ranked; // ترتيب العرض بحيث الثاني - الأول - الثالث
-      const arrangedClasses = ranked.length === 3 ? ['second', 'first', 'third'] : ['first', 'second', 'third']; // الكلاسات الخاصة بالمراكز
-      const arrangedMedals = ranked.length === 3 ? ['🥈', '👑', '🥉'] : ['👑', '🥈', '🥉']; // الأيقونات الخاصة بالمراكز
-
-      topThree.innerHTML = arranged.map((player, index) => ` 
-        <div class="podium-item ${arrangedClasses[index]}" data-player-id="${player.id}">
-          <div class="medal">${arrangedMedals[index]}</div>
-          <div class="avatar">${initials(player.name)}</div>
-          <div class="name">${player.name}</div>
-          <div class="meta">${player.country} • ${player.team}</div>
-          <div class="score">${player[state.mode]}</div>
-        </div>
-      `).join(''); // توليد HTML للكروت ثم عرضه
-    }
-
-    function renderTable() { // دالة عرض الجدول الرئيسي
-      const filtered = getSortedPlayers(); // جلب اللاعبين بعد البحث/الفلترة/الترتيب
-      const actualRanks = getRankedPlayers(); // جلب الرتب الحقيقية
-
-      leaderboardBody.innerHTML = filtered.map(player => { // إنشاء صف لكل لاعب
-        const realRank = actualRanks.find(p => p.id === player.id)?.rank ?? '-'; // إيجاد الترتيب الحقيقي
-        const isCurrentUser = player.id === currentUserId; // هل ده المستخدم الحالي؟
-        const trendSymbol = player.trend === 'up' ? '▲ Rising' : '▼ Falling'; // تحديد نص الاتجاه
-
-        return `
-          <tr class="${isCurrentUser ? 'current-user' : ''}">
-            <td><span class="rank-badge">#${realRank}</span></td>
-            <td>
-              <div class="player-cell">
-                <div class="mini-avatar">${initials(player.name)}</div>
-                <div class="player-info">
-                  <strong>${player.name}</strong>
-                  <span>${player.country}</span>
+                <div class="bulletin-row">
+                  <div class="left-cluster">
+                    <span class="badge badge-red">EVENT</span>
+                    <div>Clan Wars Season 3 registration ends in 24 hours.</div>
+                  </div>
                 </div>
               </div>
-            </td>
-            <td><strong>${player[state.mode]}</strong></td>
-            <td><span class="trend ${player.trend}">${trendSymbol}</span></td>
-            <td>${player.team}</td>
-          </tr>
-        `; // HTML الخاص بالصف
-      }).join(''); // دمج الصفوف وعرضها
-    }
-
-    function renderQuests() { // دالة عرض قائمة الكويستات
-      questsList.innerHTML = quests.map(quest => { // لف على كل كويست
-        const percent = Math.min((quest.progress / quest.goal) * 100, 100); // حساب نسبة التقدم بحد أقصى 100%
-        const completed = quest.progress >= quest.goal; // التحقق هل الكويست مكتمل؟
-
-        return `
-          <div class="quest-item">
-            <div class="quest-top">
-              <div>
-                <div class="quest-title">${quest.title}</div>
-                <div class="quest-desc">${quest.description}</div>
-              </div>
-              <div class="quest-badge">${quest.rarity}</div>
-            </div>
-
-            <div class="progress-wrap">
-              <div class="progress-bar" style="width: ${percent}%"></div>
-            </div>
-
-            <div class="quest-bottom">
-              <div class="quest-meta">
-                Progress: ${quest.progress}/${quest.goal} • Reward: ${quest.reward}
-              </div>
-              <button class="claim-btn" ${completed ? '' : 'disabled'}>
-                ${completed ? 'Claim Reward' : 'Locked'}
-              </button>
             </div>
           </div>
-        `; // HTML الخاص بالكويست
-      }).join(''); // دمج العناصر وعرضها
-    }
 
-    function renderProfiles() { // دالة عرض بطاقات بروفايلات أول 3
-      const ranked = getTopThreePlayers(); // جلب أول 3 لاعبين
+          <div>
+            <div class="panel">
+              <div class="panel-title">Active Friends</div>
+              <div class="friends-list">
+                <div class="feed-item">
+                  <div class="left-cluster">
+                    <span class="friend-status online"></span>
+                    <div>
+                      <strong>Mohamed Alaa</strong>
+                      <div class="muted">In Mission: Map 2</div>
+                    </div>
+                  </div>
+                </div>
 
-      profilesGrid.innerHTML = ranked.map((player, index) => { // لف على اللاعبين
-        const rankClasses = ['first', 'second', 'third']; // الكلاسات الخاصة بالمراكز
-        const medals = ['👑 #1', '🥈 #2', '🥉 #3']; // النصوص الخاصة بالمراكز
+                <div class="feed-item">
+                  <div class="left-cluster">
+                    <span class="friend-status online"></span>
+                    <div>
+                      <strong>Youssef Gamer</strong>
+                      <div class="muted">In Arsenal Market</div>
+                    </div>
+                  </div>
+                </div>
 
-        return `
-          <div class="profile-card ${rankClasses[index]}">
-            <div class="profile-header">
-              <div class="profile-avatar">${initials(player.name)}</div>
-              <div class="profile-title">
-                <h3>${player.name}</h3>
-                <p>${player.country} • ${player.team}</p>
+                <div class="feed-item">
+                  <div class="left-cluster">
+                    <span class="friend-status offline"></span>
+                    <div>
+                      <strong>Sara Hassan</strong>
+                      <div class="muted">Offline</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="feed-item">
+                  <div class="left-cluster">
+                    <span class="friend-status offline"></span>
+                    <div>
+                      <strong>Ahmed_Pro</strong>
+                      <div class="muted">Offline</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div class="profile-rank">${medals[index]} • ${player.title}</div>
-
-            <div class="profile-stats">
-              <div class="mini-stat">
-                <div class="mini-stat-label">${formatMode(state.mode)} Score</div>
-                <div class="mini-stat-value">${player[state.mode]}</div>
-              </div>
-              <div class="mini-stat">
-                <div class="mini-stat-label">Level</div>
-                <div class="mini-stat-value">${player.level}</div>
-              </div>
-              <div class="mini-stat">
-                <div class="mini-stat-label">Wins</div>
-                <div class="mini-stat-value">${player.wins}</div>
-              </div>
-              <div class="mini-stat">
-                <div class="mini-stat-label">Quests Done</div>
-                <div class="mini-stat-value">${player.questsCompleted}</div>
-              </div>
-            </div>
-
-            <div class="profile-bio">${player.bio}</div>
-
-            <div class="tag-row">
-              ${player.badges.map(badge => `<span class="tag">${badge}</span>`).join('')}
-            </div>
-
-            <button class="profile-btn" data-profile-id="${player.id}">View Full Profile</button>
           </div>
-        `; // HTML الخاص ببطاقة البروفايل
-      }).join(''); // دمج الكروت وعرضها
-    }
+        </div>
+      </section>
 
-    function openProfileModal(playerId) { // دالة فتح المودال حسب ID اللاعب
-      const ranked = getRankedPlayers(); // جلب الرتب الحقيقية
-      const player = ranked.find(p => p.id === Number(playerId)); // البحث عن اللاعب المطلوب
-      if (!player) return; // لو اللاعب مش موجود اخرج من الدالة
-
-      modalBody.innerHTML = ` 
-        <div class="modal-top">
-          <div class="modal-avatar">${initials(player.name)}</div>
-          <div class="modal-title">
-            <h2>${player.name}</h2>
-            <p>${player.country} • ${player.team} • Rank #${player.rank}</p>
+      <!-- Battle Map -->
+      <section class="page" id="battle-map">
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-title">Active Zone</div>
+            <div class="stat-value">Sector 4</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Enemies</div>
+            <div class="stat-value">128</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Squad Online</div>
+            <div class="stat-value">12</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Mission Risk</div>
+            <div class="stat-value" style="color: var(--danger);">High</div>
           </div>
         </div>
 
-        <div class="modal-grid">
-          <div class="modal-box">
-            <span>${formatMode(state.mode)} Score</span>
-            <strong>${player[state.mode]}</strong>
+        <div class="content-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">Live Battle Map</div>
+              <div class="panel-subtitle">Tactical overview of active combat zones, allied deployment, danger points, and resource control routes.</div>
+
+              <div class="map-grid">
+                <div class="map-sector">
+                  <span class="sector-dot dot-green"></span>
+                  <h4>Sector 1</h4>
+                  <p>Stable zone with light patrol movement and secured allied control.</p>
+                </div>
+
+                <div class="map-sector">
+                  <span class="sector-dot dot-yellow"></span>
+                  <h4>Sector 2</h4>
+                  <p>Enemy scouts detected. Alpha Squad currently reinforcing the route.</p>
+                </div>
+
+                <div class="map-sector">
+                  <span class="sector-dot dot-red"></span>
+                  <h4>Sector 4</h4>
+                  <p>Heavy pressure from Shadow Army. Core objective under attack.</p>
+                </div>
+
+                <div class="map-sector">
+                  <span class="sector-dot dot-yellow"></span>
+                  <h4>Shadow Peak</h4>
+                  <p>Unstable visibility and elite enemy signatures detected.</p>
+                </div>
+
+                <div class="map-sector">
+                  <span class="sector-dot dot-green"></span>
+                  <h4>Control Base</h4>
+                  <p>Main HQ remains online with active support channels available.</p>
+                </div>
+
+                <div class="map-sector">
+                  <span class="sector-dot dot-yellow"></span>
+                  <h4>Resource Point</h4>
+                  <p>Neutral loot node. Secure it to increase mission payout multiplier.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Current Operation</div>
+              <div class="mini-grid">
+                <div class="mini-card">
+                  <div class="section-title">Operation Name</div>
+                  <div class="muted">Void Containment</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Time Left</div>
+                  <div class="muted">01:42:18</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Objective</div>
+                  <div class="muted">Defend Sector 4 and secure the Energy Core.</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Reward</div>
+                  <div class="muted">2500 XP + Epic Chest</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Team Deployment</div>
+              <div class="stack">
+                <div class="deploy-row">
+                  <div>
+                    <strong>Alpha Squad</strong>
+                    <div class="muted">Defending Sector 2</div>
+                  </div>
+                  <span class="status-pill status-online">Active</span>
+                </div>
+
+                <div class="deploy-row">
+                  <div>
+                    <strong>Ghost Unit</strong>
+                    <div class="muted">Moving to Shadow Peak</div>
+                  </div>
+                  <span class="status-pill status-match">Transit</span>
+                </div>
+
+                <div class="deploy-row">
+                  <div>
+                    <strong>Delta Team</strong>
+                    <div class="muted">Capturing Arsenal Route</div>
+                  </div>
+                  <span class="status-pill status-online">Engaged</span>
+                </div>
+
+                <div class="deploy-row">
+                  <div>
+                    <strong>Omega Team</strong>
+                    <div class="muted">Standby at Control Base</div>
+                  </div>
+                  <span class="status-pill status-active">Ready</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="modal-box">
-            <span>Level</span>
-            <strong>${player.level}</strong>
+
+          <div>
+            <div class="panel">
+              <div class="panel-title">Mission Alerts</div>
+              <div class="alerts-list">
+                <div class="feed-item">
+                  <div>Enemy wave detected near Sector 4.</div>
+                </div>
+                <div class="feed-item">
+                  <div>Air support available in 5 minutes.</div>
+                </div>
+                <div class="feed-item">
+                  <div>Resource node captured by allied team.</div>
+                </div>
+                <div class="feed-item">
+                  <div>Signal disturbance near Shadow Peak.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Quick Actions</div>
+              <div class="stack">
+                <button class="cta-btn">Deploy Squad</button>
+                <button class="outline-btn">Ping Teammates</button>
+                <button class="outline-btn">Open Tactical Brief</button>
+                <button class="outline-btn">Request Backup</button>
+              </div>
+            </div>
           </div>
-          <div class="modal-box">
-            <span>Wins</span>
-            <strong>${player.wins}</strong>
+        </div>
+      </section>
+
+      <!-- Arsenal Market -->
+      <section class="page" id="arsenal-market">
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-title">Credits</div>
+            <div class="stat-value">12,450 NC</div>
           </div>
-          <div class="modal-box">
-            <span>Completed Quests</span>
-            <strong>${player.questsCompleted}</strong>
+          <div class="stat-card">
+            <div class="stat-title">Owned Weapons</div>
+            <div class="stat-value">28</div>
           </div>
-          <div class="modal-box">
-            <span>Favorite Mode</span>
-            <strong>${player.favoriteMode}</strong>
+          <div class="stat-card">
+            <div class="stat-title">Limited Offers</div>
+            <div class="stat-value">4</div>
           </div>
-          <div class="modal-box">
-            <span>Trend</span>
-            <strong>${player.trend === 'up' ? 'Rising' : 'Falling'}</strong>
+          <div class="stat-card">
+            <div class="stat-title">Daily Discount</div>
+            <div class="stat-value" style="color: var(--warning);">20%</div>
           </div>
         </div>
 
-        <div class="modal-bio">${player.bio}</div>
+        <div class="content-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">Featured Weapons</div>
+              <div class="weapon-grid">
+                <div class="weapon-card">
+                  <h4>Void Katana</h4>
+                  <div class="meta-list">
+                    <div>Damage: 92</div>
+                    <div>Speed: Fast</div>
+                    <div>Rarity: Legendary</div>
+                    <div>Price: 4,200 NC</div>
+                  </div>
+                </div>
 
-        <div class="tag-row">
-          <span class="tag">${player.title}</span>
-          ${player.badges.map(badge => `<span class="tag">${badge}</span>`).join('')}
+                <div class="weapon-card">
+                  <h4>Plasma Rifle X</h4>
+                  <div class="meta-list">
+                    <div>Damage: 81</div>
+                    <div>Range: Long</div>
+                    <div>Rarity: Epic</div>
+                    <div>Price: 3,100 NC</div>
+                  </div>
+                </div>
+
+                <div class="weapon-card">
+                  <h4>Shadow Dagger</h4>
+                  <div class="meta-list">
+                    <div>Damage: 67</div>
+                    <div>Speed: Very Fast</div>
+                    <div>Rarity: Rare</div>
+                    <div>Price: 1,900 NC</div>
+                  </div>
+                </div>
+
+                <div class="weapon-card">
+                  <h4>Nova Blaster</h4>
+                  <div class="meta-list">
+                    <div>Damage: 75</div>
+                    <div>Control: Stable</div>
+                    <div>Rarity: Epic</div>
+                    <div>Price: 2,750 NC</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Skin Collection</div>
+              <div class="stack">
+                <div class="offer-row"><strong>Cyber Phantom Skin</strong><span class="status-pill status-online">Owned</span></div>
+                <div class="offer-row"><strong>Neon Strike Armor</strong><span class="status-pill status-match">Sale</span></div>
+                <div class="offer-row"><strong>Inferno Mask</strong><span class="status-pill status-online">Hot</span></div>
+                <div class="offer-row"><strong>Blue Pulse Suit</strong><span class="status-pill status-active">New</span></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Upgrade Station</div>
+              <div class="mini-grid">
+                <div class="mini-card">
+                  <div class="section-title">Weapon Level Upgrade</div>
+                  <div class="muted">Increase base weapon level and damage output.</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Damage Boost Module</div>
+                  <div class="muted">Temporary burst module for ranked fights.</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Reload Booster</div>
+                  <div class="muted">Reduce downtime during high-pressure skirmishes.</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Critical Hit Chip</div>
+                  <div class="muted">Improves precision multiplier for elite targets.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="panel-title">Today's Offers</div>
+              <div class="history-list">
+                <div class="offer-row">
+                  <div>20% off Cyber Skins</div>
+                  <span class="badge badge-yellow">SALE</span>
+                </div>
+                <div class="offer-row">
+                  <div>Buy 1 get 1 Ammo Pack</div>
+                  <span class="badge badge-blue">BUNDLE</span>
+                </div>
+                <div class="offer-row">
+                  <div>Legendary Chest Bundle</div>
+                  <span class="badge badge-red">LIMITED</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Purchase History</div>
+              <div class="history-list">
+                <div class="feed-item">Plasma Rifle Ammo</div>
+                <div class="feed-item">Armor Repair Kit</div>
+                <div class="feed-item">Ghost Helmet Skin</div>
+                <div class="feed-item">Energy Cell Pack</div>
+              </div>
+            </div>
+          </div>
         </div>
-      `; // إنشاء محتوى المودال
+      </section>
 
-      profileModal.classList.add('open'); // إظهار المودال
-    }
+      <!-- Pro Ranking -->
+      <section class="page" id="pro-ranking">
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-title">Global Rank</div>
+            <div class="stat-value">#4</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Regional Rank</div>
+            <div class="stat-value">#1 Egypt</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Win Rate</div>
+            <div class="stat-value">87%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Clan Score</div>
+            <div class="stat-value">14,820</div>
+          </div>
+        </div>
 
-    function populateTeams() { // دالة ملء قائمة الفرق داخل الـ select
-      const teams = [...new Set(players.map(player => player.team))].sort(); // استخراج الفرق بدون تكرار وترتيبها
-      teams.forEach(team => { // لف على كل فريق
-        const option = document.createElement('option'); // إنشاء option جديد
-        option.value = team; // قيمة الـ option
-        option.textContent = team; // النص الظاهر
-        teamFilter.appendChild(option); // إضافته للقائمة
+        <div class="content-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">Top Players</div>
+
+              <div class="table-head">
+                <div>Rank</div>
+                <div>Player</div>
+                <div>Wins</div>
+                <div>K/D</div>
+                <div>Clan</div>
+                <div>Status</div>
+              </div>
+
+              <div class="stack">
+                <div class="table-row">
+                  <div class="rank-number">#1</div>
+                  <div>BlazeHunter</div>
+                  <div>512</div>
+                  <div>4.8</div>
+                  <div>Nova Clan</div>
+                  <div><span class="status-pill status-online">Online</span></div>
+                </div>
+
+                <div class="table-row">
+                  <div class="rank-number">#2</div>
+                  <div>DarkVenom</div>
+                  <div>498</div>
+                  <div>4.5</div>
+                  <div>ShadowCore</div>
+                  <div><span class="status-pill status-match">In Match</span></div>
+                </div>
+
+                <div class="table-row">
+                  <div class="rank-number">#3</div>
+                  <div>RexNova</div>
+                  <div>470</div>
+                  <div>4.3</div>
+                  <div>TitanX</div>
+                  <div><span class="status-pill status-online">Online</span></div>
+                </div>
+
+                <div class="table-row">
+                  <div class="rank-number">#4</div>
+                  <div>You</div>
+                  <div>452</div>
+                  <div>4.1</div>
+                  <div>Infinity</div>
+                  <div><span class="status-pill status-active">Active</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Performance Stats</div>
+              <div class="mini-grid">
+                <div class="mini-card">
+                  <div class="section-title">Total Matches</div>
+                  <div class="muted">519</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Battles Won</div>
+                  <div class="muted">452</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">MVP Awards</div>
+                  <div class="muted">117</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Longest Streak</div>
+                  <div class="muted">19</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Accuracy Rate</div>
+                  <div class="muted">73%</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Elite Medals</div>
+                  <div class="muted">28</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="panel-title">Recent Rank Activity</div>
+              <div class="rank-list">
+                <div class="feed-item">Moved from #5 to #4 globally.</div>
+                <div class="feed-item">Won 6 ranked matches in a row.</div>
+                <div class="feed-item">Earned Elite Sniper Medal.</div>
+                <div class="feed-item">Secured 3 MVP finishes this week.</div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Next Goal</div>
+              <div class="panel-subtitle">Reach Rank #3 before season reset. You need 18 more points and one streak bonus to close the gap.</div>
+              <button class="cta-btn">Push Ranked</button>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Season Rewards</div>
+              <div class="stack">
+                <div class="offer-row"><strong>Top 10</strong><span class="status-pill status-online">Legendary Badge</span></div>
+                <div class="offer-row"><strong>Top 5</strong><span class="status-pill status-match">Exclusive Armor</span></div>
+                <div class="offer-row"><strong>Top 3</strong><span class="status-pill status-active">Elite Rank Frame</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Global Chat -->
+      <section class="page" id="global-chat">
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-title">Players Online</div>
+            <div class="stat-value">14,208</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Clan Messages</div>
+            <div class="stat-value">86</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Unread Chats</div>
+            <div class="stat-value">12</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Voice Rooms</div>
+            <div class="stat-value">7 Active</div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">Global Chat Feed</div>
+              <div class="chat-feed">
+                <div class="feed-item">
+                  <div><strong>MohamedAlaa:</strong> Need 2 players for Void Invasion.</div>
+                  <span class="muted">Now</span>
+                </div>
+
+                <div class="feed-item">
+                  <div><strong>YoussefGamer:</strong> Anyone selling Plasma Rifle skin?</div>
+                  <span class="muted">2m</span>
+                </div>
+
+                <div class="feed-item">
+                  <div><strong>ShadowX:</strong> Clan War starts in 30 mins.</div>
+                  <span class="muted">4m</span>
+                </div>
+
+                <div class="feed-item">
+                  <div><strong>NovaQueen:</strong> GG team, Sector 4 secured.</div>
+                  <span class="muted">7m</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Clan Chat</div>
+              <div class="stack">
+                <div class="feed-item">Strategy update posted by squad leader.</div>
+                <div class="feed-item">Ranked push scheduled for tonight.</div>
+                <div class="feed-item">Reward split confirmed after mission clear.</div>
+                <div class="feed-item">Delta team requesting backup players.</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="panel-title">Voice Channels</div>
+              <div class="voice-list">
+                <div class="voice-row">
+                  <div>Squad Room Alpha</div>
+                  <span class="status-pill status-online">6 Joined</span>
+                </div>
+                <div class="voice-row">
+                  <div>Ranked Push Team</div>
+                  <span class="status-pill status-match">4 Joined</span>
+                </div>
+                <div class="voice-row">
+                  <div>Arsenal Traders</div>
+                  <span class="status-pill status-online">9 Joined</span>
+                </div>
+                <div class="voice-row">
+                  <div>Clan Leaders Room</div>
+                  <span class="status-pill status-active">Private</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Online Friends</div>
+              <div class="friends-list">
+                <div class="feed-item">
+                  <div class="left-cluster">
+                    <span class="friend-status online"></span>
+                    <div><strong>Mohamed Alaa</strong><div class="muted">In Mission</div></div>
+                  </div>
+                </div>
+                <div class="feed-item">
+                  <div class="left-cluster">
+                    <span class="friend-status online"></span>
+                    <div><strong>Youssef Gamer</strong><div class="muted">In Arsenal</div></div>
+                  </div>
+                </div>
+                <div class="feed-item">
+                  <div class="left-cluster">
+                    <span class="friend-status busy"></span>
+                    <div><strong>RanaX</strong><div class="muted">In Lobby</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Quick Actions</div>
+              <div class="stack">
+                <button class="cta-btn">Start New Chat</button>
+                <button class="outline-btn">Invite to Voice</button>
+                <button class="outline-btn">Create Clan Group</button>
+                <button class="outline-btn">Mute Notifications</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Inventory -->
+      <section class="page" id="inventory">
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-title">Total Items</div>
+            <div class="stat-value">146</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Weapons Stored</div>
+            <div class="stat-value">28</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Skins Owned</div>
+            <div class="stat-value">34</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Consumables</div>
+            <div class="stat-value">52</div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">Inventory Categories</div>
+              <div class="stack">
+                <div class="offer-row"><strong>Weapons</strong><span class="status-pill status-online">28</span></div>
+                <div class="offer-row"><strong>Armor</strong><span class="status-pill status-online">16</span></div>
+                <div class="offer-row"><strong>Skins</strong><span class="status-pill status-match">34</span></div>
+                <div class="offer-row"><strong>Consumables</strong><span class="status-pill status-active">52</span></div>
+                <div class="offer-row"><strong>Mission Items</strong><span class="status-pill status-online">9</span></div>
+                <div class="offer-row"><strong>Special Loot</strong><span class="status-pill status-match">7</span></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Stored Items</div>
+              <div class="item-grid">
+                <div class="item-card">
+                  <h4>Plasma Rifle X</h4>
+                  <div class="meta-list">
+                    <div>Type: Weapon</div>
+                    <div>Level: 6</div>
+                    <div>Durability: 84%</div>
+                    <div>Status: Equipped</div>
+                  </div>
+                </div>
+
+                <div class="item-card">
+                  <h4>Void Katana</h4>
+                  <div class="meta-list">
+                    <div>Type: Melee</div>
+                    <div>Level: 8</div>
+                    <div>Durability: 91%</div>
+                    <div>Status: Stored</div>
+                  </div>
+                </div>
+
+                <div class="item-card">
+                  <h4>Cyber Shield</h4>
+                  <div class="meta-list">
+                    <div>Type: Armor</div>
+                    <div>Defense: +48</div>
+                    <div>Condition: Good</div>
+                    <div>Status: Stored</div>
+                  </div>
+                </div>
+
+                <div class="item-card">
+                  <h4>Energy Capsule</h4>
+                  <div class="meta-list">
+                    <div>Type: Consumable</div>
+                    <div>Quantity: 12</div>
+                    <div>Boost: +35 Energy</div>
+                    <div>Status: Ready</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Equipped Loadout</div>
+              <div class="mini-grid">
+                <div class="mini-card">
+                  <div class="section-title">Primary Weapon</div>
+                  <div class="muted">Plasma Rifle X</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Secondary Weapon</div>
+                  <div class="muted">Shadow Dagger</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Armor</div>
+                  <div class="muted">Cyber Shield Mk II</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Skill Module</div>
+                  <div class="muted">Critical Hit Chip</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="panel-title">Recent Loot</div>
+              <div class="loot-list">
+                <div class="loot-row">Epic Ammo Pack <span class="badge badge-blue">NEW</span></div>
+                <div class="loot-row">Ghost Visor <span class="badge badge-yellow">RARE</span></div>
+                <div class="loot-row">Nano Core <span class="badge badge-red">EPIC</span></div>
+                <div class="loot-row">Repair Patch <span class="badge badge-green">COMMON</span></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Storage Status</div>
+              <div class="stack">
+                <div class="mini-card">
+                  <div class="section-title">Capacity</div>
+                  <div class="muted">146 / 200</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Free Slots</div>
+                  <div class="muted">54</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Overflow Risk</div>
+                  <div class="muted">Low</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section class="page" id="settings">
+        <div class="cards-grid">
+          <div class="stat-card">
+            <div class="stat-title">Account Status</div>
+            <div class="stat-value">Verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Server Region</div>
+            <div class="stat-value">Europe</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Language</div>
+            <div class="stat-value">English</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Theme</div>
+            <div class="stat-value">Dark Mode</div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">Account Settings</div>
+              <div class="settings-list">
+                <div class="setting-row">
+                  <div>
+                    <strong>Username</strong>
+                    <div class="settings-note">Infinity_Reaper</div>
+                  </div>
+                  <button class="outline-btn">Edit</button>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Email</strong>
+                    <div class="settings-note">player@infinityos.gg</div>
+                  </div>
+                  <button class="outline-btn">Change</button>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Password</strong>
+                    <div class="settings-note">Last updated 24 days ago</div>
+                  </div>
+                  <button class="outline-btn">Reset</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Game Settings</div>
+              <div class="settings-list">
+                <div class="setting-row">
+                  <div>
+                    <strong>Graphics Quality</strong>
+                    <div class="settings-note">Ultra</div>
+                  </div>
+                  <button class="outline-btn">Adjust</button>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Voice Chat</strong>
+                    <div class="settings-note">Enabled</div>
+                  </div>
+                  <div class="toggle on"></div>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Crosshair Style</strong>
+                    <div class="settings-note">Precision Blue</div>
+                  </div>
+                  <button class="outline-btn">Customize</button>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Sensitivity</strong>
+                    <div class="settings-note">7.5 / 10</div>
+                  </div>
+                  <button class="outline-btn">Tune</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Privacy & Security</div>
+              <div class="settings-list">
+                <div class="setting-row">
+                  <div>
+                    <strong>Two-Factor Authentication</strong>
+                    <div class="settings-note">Protect your account with an extra security layer.</div>
+                  </div>
+                  <div class="toggle on"></div>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Login Alerts</strong>
+                    <div class="settings-note">Get notified when a new device signs in.</div>
+                  </div>
+                  <div class="toggle on"></div>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Show Online Status</strong>
+                    <div class="settings-note">Visible to friends and clan members.</div>
+                  </div>
+                  <div class="toggle on"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="panel-title">Quick Toggles</div>
+              <div class="stack">
+                <div class="setting-row">
+                  <div>
+                    <strong>Notifications</strong>
+                    <div class="settings-note">Mission alerts and friend activity.</div>
+                  </div>
+                  <div class="toggle on"></div>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Auto-Join Voice Chat</strong>
+                    <div class="settings-note">Join squad channels automatically.</div>
+                  </div>
+                  <div class="toggle"></div>
+                </div>
+
+                <div class="setting-row">
+                  <div>
+                    <strong>Performance Mode</strong>
+                    <div class="settings-note">Reduce effects for smoother gameplay.</div>
+                  </div>
+                  <div class="toggle"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">System Info</div>
+              <div class="stack">
+                <div class="mini-card">
+                  <div class="section-title">Version</div>
+                  <div class="muted">v2.4.1</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Ping</div>
+                  <div class="muted">42 ms</div>
+                </div>
+                <div class="mini-card">
+                  <div class="section-title">Region</div>
+                  <div class="muted">EU Central</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const pages = document.querySelectorAll(".page");
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+    const themeToggle = document.getElementById("themeToggle");
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const toggles = document.querySelectorAll(".toggle");
+
+    const pageContent = {
+      dashboard: {
+        title: "Dashboard",
+        subtitle: "Command center overview for your Infinity profile."
+      },
+      "battle-map": {
+        title: "Battle Map",
+        subtitle: "Monitor live combat zones, active operations, and tactical deployment."
+      },
+      "arsenal-market": {
+        title: "Arsenal Market",
+        subtitle: "Browse featured weapons, upgrade gear, and track exclusive offers."
+      },
+      "pro-ranking": {
+        title: "Pro Ranking",
+        subtitle: "Track leaderboard positions, rank changes, and season performance."
+      },
+      "global-chat": {
+        title: "Global Chat",
+        subtitle: "Stay connected with clan members, friends, and live community chat."
+      },
+      inventory: {
+        title: "Inventory",
+        subtitle: "Manage weapons, armor, loot, and your current combat loadout."
+      },
+      settings: {
+        title: "Settings",
+        subtitle: "Control account preferences, privacy, performance, and gameplay options."
+      }
+    };
+
+    navButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const targetPage = button.dataset.page;
+
+        navButtons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        pages.forEach((page) => page.classList.remove("active"));
+        document.getElementById(targetPage).classList.add("active");
+
+        pageTitle.textContent = pageContent[targetPage].title;
+        pageSubtitle.textContent = pageContent[targetPage].subtitle;
+
+        if (window.innerWidth <= 980) {
+          sidebar.classList.remove("open");
+        }
       });
-    }
-
-    function render() { // دالة رئيسية لإعادة رسم الواجهة كلها
-      renderStats(); // عرض الإحصائيات
-      renderTopThree(); // عرض أول 3
-      renderQuests(); // عرض الكويستات
-      renderTable(); // عرض الجدول
-      renderProfiles(); // عرض البروفايلات
-    }
-
-    document.getElementById('modeTabs').addEventListener('click', event => { // الاستماع للضغط على التابات
-      const btn = event.target.closest('.tab'); // تحديد الزر المضغوط
-      if (!btn) return; // لو الضغط مش على تاب اخرج
-
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active')); // إزالة active من كل التابات
-      btn.classList.add('active'); // إضافة active للتاب الحالي
-      state.mode = btn.dataset.mode; // تحديث الوضع الحالي من data-mode
-      render(); // إعادة الرسم بالكامل
     });
 
-    searchInput.addEventListener('input', e => { // الاستماع للكتابة في البحث
-      state.search = e.target.value; // تحديث قيمة البحث في الحالة
-      renderTable(); // تحديث الجدول فقط
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light-mode");
     });
 
-    teamFilter.addEventListener('change', e => { // الاستماع لتغيير الفريق
-      state.team = e.target.value; // تحديث الفريق الحالي
-      renderTable(); // تحديث الجدول فقط
+    menuToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
     });
 
-    document.getElementById('sortScoreBtn').addEventListener('click', () => { // عند الضغط على ترتيب السكور
-      state.sort = 'score'; // اجعل الترتيب حسب السكور
-      renderTable(); // تحديث الجدول فقط
+    toggles.forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        toggle.classList.toggle("on");
+      });
     });
 
-    document.getElementById('sortNameBtn').addEventListener('click', () => { // عند الضغط على ترتيب الاسم
-      state.sort = 'name'; // اجعل الترتيب حسب الاسم
-      renderTable(); // تحديث الجدول فقط
-    });
+    document.addEventListener("click", (event) => {
+      const clickedInsideSidebar = sidebar.contains(event.target);
+      const clickedMenuButton = menuToggle.contains(event.target);
 
-    document.getElementById('resetBtn').addEventListener('click', () => { // عند الضغط على إعادة التعيين
-      state = { mode: 'allTime', search: '', team: 'all', sort: 'score' }; // إعادة الحالة الافتراضية
-      searchInput.value = ''; // تفريغ البحث
-      teamFilter.value = 'all'; // إعادة اختيار كل الفرق
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active')); // إزالة active من الكل
-      document.querySelector('[data-mode="allTime"]').classList.add('active'); // تفعيل تاب All Time
-      render(); // إعادة رسم كل شيء
-    });
-
-    topThree.addEventListener('click', event => { // الاستماع للضغط على عنصر في البوديوم
-      const card = event.target.closest('.podium-item'); // تحديد الكارت المضغوط
-      if (!card) return; // لو مش كارت اخرج
-      openProfileModal(card.dataset.playerId); // افتح المودال للاعب ده
-    });
-
-    profilesGrid.addEventListener('click', event => { // الاستماع للضغط على زر داخل كروت البروفايل
-      const btn = event.target.closest('.profile-btn'); // تحديد الزر
-      if (!btn) return; // لو مفيش زر اخرج
-      openProfileModal(btn.dataset.profileId); // افتح المودال حسب اللاعب
-    });
-
-    document.getElementById('closeModal').addEventListener('click', () => { // عند الضغط على زر الغلق
-      profileModal.classList.remove('open'); // اقفل المودال
-    });
-
-    profileModal.addEventListener('click', event => { // لو المستخدم ضغط خارج صندوق المودال
-      if (event.target === profileModal) { // التأكد إن الضغط على الخلفية نفسها
-        profileModal.classList.remove('open'); // اقفل المودال
+      if (window.innerWidth <= 980 && !clickedInsideSidebar && !clickedMenuButton) {
+        sidebar.classList.remove("open");
       }
     });
-
-    populateTeams(); // ملء قائمة الفرق أول ما الصفحة تفتح
-    render(); // عرض كل المحتوى أول مرة
-
-  </script> <!-- نهاية JavaScript -->
-</body> <!-- نهاية جسم الصفحة -->
-</html> <!-- نهاية الملف -->
+  </script>
+</body>
+</html>
